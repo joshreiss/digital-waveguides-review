@@ -1,1 +1,39 @@
 <b>Digital Waveguides Review - Code examples</b>
+
+<ul>
+    <li>Simplified Karplus Strong - Delay Line with Feedback</li>
+    <li>Negative feedback</li>
+    <li>Digital Waveguide Filters</li>
+    <li>Nonlinearities in the feedback filter</li>
+    <li>Removing DC offset</li>
+    <li>Controlling the Pitch </li>
+    <li>Note transitions</li>
+    <li>Basic waveguide implementations</li>
+    <li>Fractional delay</li>
+    <li>Animal vocalisation example</li>
+    <li>Flute example</li>
+    <li>Reverb example</li>
+</ul>
+
+<h2>Simplified Karplus Strong - Delay Line with Feedback</h2>
+A comb filter with feedback may be considered a highly simplified case of a waveguide. 
+An excitation (the source signal) is delayed by a short duration (the delay length). 
+This delayed signal is attenuated by a feedback gain, and fed back into the delay along with the source signal. 
+The time for the signal to be fed back depends on the length of the delay line. 
+This gives the output sound a strong pitched component, which in simple cases is the inverse of the delay length.
+
+<a href="KarplusStrong/KarplusStrong.html">The simplest example</a><br>
+<a href="KarplusStrong/AudioWorklet/KarplusStrongV2.html">An audio worklet version</a>
+<br>To Do!<br>
+A delay line with feedback.<br>
+This model can be represented by the following difference equation, which gives the output y at sample n as a function of previous outputs and current and previous inputs x, <br>
+y[n]=x[n-d]+gy[n−d]<br>
+where:
+<ul>
+    <li>y is the output signal,
+    <li>x is the input (exciter) signal
+    <li>n is the current sample
+    <li>d is the delay length
+    <li>g is the feedback gain
+</ul>
+ To do!
