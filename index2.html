@@ -8,7 +8,7 @@
     <li>Removing DC offset</li>
     <li>Controlling the Pitch </li>
     <li>Note transitions</li>
-    <li>Related forms</li>
+    <li>Basic waveguide implementations</li>
     <li>Fractional delay</li>
     <li>Animal vocalisation example</li>
     <li>Flute example</li>
@@ -89,12 +89,12 @@ Two delay lines will generally suffice for any monophonic sequence of notes, sin
   To Do!<br>
 A waveguide model playing controllable legato notes. Move the "note" slider to control the notes.
 
-<h2>Related Forms<h2>
+<h2>Basic waveguide implementations</h2>
     To do!<br>
-    Form A above directly matches the physical model. 
-    We often use the simplified form B, obtained by changing the point at which the delay loop is sampled, then combining delays inside the loop.<br>
+    The top diagram above directly matches the physical model. 
+    We often use the simplified form in the second diagram, obtained by changing the point at which the delay loop is sampled, then combining delays inside the loop.<br>
     More generally, the input and output points as well as the order of elements inside the delay loop can often be modified with no audible difference, 
-    even if the model is not exactly equivalent. Form C is particularly useful when low latency is required.
+    even if the model is not exactly equivalent. The third diagram is intended for low latency implementation.
     
 <h2>Fractional delay</h2>
     Digital delay lines are made of discrete samples, but they often need to be read at arbitrary times between samples. 
