@@ -1,0 +1,32 @@
+<input type='button' value='play' id='Play'>
+<script src='recorder.js'></script>
+<button onclick='Start()'>Start</button>
+<button onclick='Stop()'>Stop</button>
+<audio controls id='audio'></audio>
+<script>
+  var context = new AudioContext
+output = new GainNode(context)
+var Recording = new Recorder(output)
+function Start() {
+  context.resume()
+  Recording.record()
+}
+function Stop() {
+  Recording.stop()
+  Recording.exportWAV(blob => audio.src = URL.createObjectURL(blob))
+}
+let Const = new ConstantSourceNode(context,{offset:0}),
+delay= new DelayNode(context,{delayTime:0.001}),
+feedbackGain= new GainNode(context,{gain:0.999})
+Const.start()    
+Const.connect(delay)
+Const.connect(output)
+delay.connect(output).connect(context.destination)
+Play.onclick = function() {
+  context.resume()
+  let now = context.currentTime
+  console.log(delay)
+  Const.offset.setValueAtTime(0.5, now)  
+  Const.offset.setValueAtTime(0, now + 2 / context.sampleRate)
+}
+</script>

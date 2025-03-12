@@ -1,13 +1,20 @@
 var context = new AudioContext
+output = new GainNode(context)
+var Recording = new Recorder(output)
+function Start() {
+  Recording.record()
+}
+function Stop() {
+  Recording.stop()
+  Recording.exportWAV(blob => audio.src = URL.createObjectURL(blob))
+}
 context.audioWorklet.addModule('KSWorklets.js').then(() => {
   let Noise = new AudioWorkletNode(context,'noise-generator'),
   NoiseGain = new GainNode(context,{gain:0}),
-  output = new GainNode(context),
-  feedbackDelay= new AudioWorkletNode(context,'feedbackDelay-processor',
+  feedbackDelay= new AudioWorkletNode(context,'feedbackFilterDelay-processor',
     {parameterData:{delayTime:Delay.value/1000,gain:Decay.value}
   })
   Noise.connect(NoiseGain)
-  NoiseGain.connect(output)
   NoiseGain.connect(feedbackDelay)
   feedbackDelay.connect(output)
   output.connect(context.destination)
@@ -22,10 +29,9 @@ context.audioWorklet.addModule('KSWorklets.js').then(() => {
   Width.oninput = function() { WidthLabel.innerHTML = this.value}
   Play.onclick = function() {
     context.resume()
-    var newDelay= Number(Delay.value)+1000*128/context.sampleRate
-    feedbackDelay.parameters.get('delayTime').value= newDelay
+    feedbackDelay.parameters.get('delayTime').value= 1
     let now = context.currentTime
     NoiseGain.gain.setValueAtTime(0.5, now)
-    NoiseGain.gain.linearRampToValueAtTime(0, now + Width.value/1000)
+    NoiseGain.gain.setValueAtTime(0, now + 1 / context.sampleRate)
   }
 })

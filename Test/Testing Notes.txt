@@ -1,0 +1,13 @@
+Try test signal
+
+For delay of 1 ms, should be 48 samples, pitch of 1000Hz
+For delay of 128 samples, should be 128/48=2.67ms or 375Hz
+=> delay node can't go above 375 Hz
+
+FeedbackWorklet - works
+
+No worklet - a little off, even when above 2.67 ms
+No worklet, no feedback - correct, both 20ms and 1 ms
+
+Delay worklet
+- works without feedback, off with feedback
