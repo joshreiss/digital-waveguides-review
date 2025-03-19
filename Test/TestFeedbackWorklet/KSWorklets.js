@@ -18,9 +18,9 @@ registerProcessor('feedbackDelay-processor', class extends AudioWorkletProcessor
   process(inputs, outputs, parameters) {
     let delaySamples=Math.round(sampleRate*parameters.delayTime[0]/1000),
         bufferSize=this.Buffer.length
-        if (Math.random()<0.01) console.log(delaySamples,parameters.delayTime[0],parameters.gain[0])
     for (let i=0;i<outputs[0][0].length;++i) {
       outputs[0][0][i]= parameters.gain[0]*this.Buffer[this.ReadPtr]+inputs[0][0][i]
+      //increment delay line
       this.Buffer[this.WritePtr]=outputs[0][0][i]
       this.WritePtr++
       if (this.WritePtr>=bufferSize) this.WritePtr=this.WritePtr-bufferSize

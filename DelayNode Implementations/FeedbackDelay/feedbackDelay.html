@@ -1,0 +1,72 @@
+<h2>Feedback Delay</h2>
+Delay starts to produce interesting sounds when the output of a delay is routed back to the input. 
+Here, we implement a basic delay with feedback. The source is a short burst of a 2kHz tone.
+
+<img src="FeedbackDelay.png" width=351 height=128><br>
+Try playing around with the feedback delay below. 
+Set the gain to a high value, so that it will take a long time for the output to decay.
+Now move the delay to a low value. You should start to hear a new, buzzy pitched component emerge. 
+This new frequency has an associated period given by one over the delay. 
+As we shall see, this is important in developing and controlling the digital waveguides.
+<p>Gain</p>
+<input type='range' min=0.5 max=0.99 value=0.8 step=0.01 id='Gain'>
+<input type='number' min=0.5 max=0.99 value=0.8 step=0.01 id='GainNumber'>
+<p>Delay (ms)</p>
+<input type='range' min=0.005 max=0.2 value=0.5 step=0.001 id='Delay'>
+<input type='number' min=0.005 max=0.2 value=0.5 step=0.001 id='DelayNumber'>
+<br>
+<input type='button' value='play' onclick='context.resume()' id='Play'>
+<script>
+  var context = new AudioContext()
+  let tone = new OscillatorNode(context,{frequency:2000})
+  tone.start()
+  toneGain = new GainNode(context,{gain:0})
+  var delay= new DelayNode(context,{delayTime:0.08})
+  var feedback= new GainNode(context,{gain:0.8})
+  tone.connect(toneGain)
+  toneGain.connect(delay)
+  delay.connect(feedback)
+  feedback.connect(delay)
+  delay.connect(context.destination)
+  //trigger
+  Play.onclick = () => {
+    context.resume()
+    let now = context.currentTime
+    toneGain.gain.setValueAtTime(1, now)
+    toneGain.gain.linearRampToValueAtTime(0, now + 0.05)
+  }
+  //user interface
+  Delay.oninput = () =>  {
+    delay.delayTime.value = Delay.value
+    DelayNumber.value = Delay.value
+  }
+  DelayNumber.oninput = () =>  {
+    delay.delayTime.value = DelayNumber.value
+    Delay.value = DelayNumber.value
+  }
+  Gain.oninput = () => {
+    feedback.gain.value = Gain.value
+    GainNumber.value = Gain.value
+  }
+  GainNumber.oninput = () => {
+    feedback.gain.value = Gain.value
+    Gain.value = GainNumber.value
+  }
+</script>
+<br>
+This model can be represented by a difference equation, which gives the output y at sample n as a function of previous outputs and current and previous inputs x, <br>
+<math>y[n]=x[n-d]+gy[n−d]</math><br>
+<p><span class="math display">
+    <em>y</em>[<em>n</em>] = 
+    <em>x</em>[<em>n</em> − <em>d</em>] + 
+    <em>g</em><em>y</em>[<em>n</em> − <em>d</em>]
+  </span></p><br>
+
+where:
+<ul>
+    <li><em>y</em> is the output signal,
+    <li><em>x</em> is the input (exciter) signal
+    <li><em>n</em> is the current sample
+    <li><em>d</em> is the delay length
+    <li><em>g</em> is the feedback gain
+</ul>

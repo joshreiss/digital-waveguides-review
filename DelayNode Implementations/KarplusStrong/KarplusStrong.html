@@ -1,3 +1,26 @@
+
+<h2>Simplified Karplus Strong - Delay Line with Feedback</h2>
+A delay line with feedback may be considered a highly simplified case of a waveguide. 
+An excitation (the source signal) is delayed by a short duration (the delay length). 
+This delayed signal is attenuated by a feedback gain, and fed back into the delay along with the source signal. 
+The time for the signal to be fed back depends on the length of the delay line. 
+This gives the output sound a strong pitched component, which in simple cases is the inverse of the delay length.
+<br>
+Here, we have extended the feedback delay to allow for various different sources, including oscillators with an adjustable frequency. 
+It also has a width parameter to control the duration of the excitation.
+<br>
+Note that this is very simplified compared to the full Karplus-Strong algorithm. For instance, there is no filter in the feedback loop, just a gain reduction. If we want filtering, that would need to also be part of the audio worklet.
+<br>
+This also illustrates a problem. 
+The Web Audio API automatically adds one block (128 samples) delay when a delay node appears in a feedback loop.
+So x seconds of delay is actually x + 128/fs, where fs is the sample rate. 
+Hence for a sample rate of 48,000 samples per second, the highest frequency of a note produced 
+using this algorithm is 48,000 / 128, or 375 Hz. 
+This holds even when the delay is implemented with a simple audio worklet, 
+since one frame of 128 samples is processed before it can be passed back to the input. 
+The solution is to implement the feedback loop inside an audio worklet, as shown next. 
+
+
 <p>Source</p>
 <select id='Source'>
   <option value='noise'>Noise</option>
@@ -7,17 +30,17 @@
   <option value='square'>Square</option>
 </select>
 <p>Decay</p>
-<input type='range' min=0.8 max='0.999' value='0.9' step='any' id='Decay'>
-<span id='DecayLabel'></span>
+<input type='range' min=0.8 max=0.999 value=0.9 step=0.001 id='Decay'>
+<input type='number' min=0.8 max=0.999 value=0.9 step=0.001 id='DecayNumber'>
 <p>Delay (ms)</p>
-<input type='range' min=0 max=20 value=10 step='any' id='Delay'>
-<span id='DelayLabel'></span>
+<input type='range' min=0 max=10 value=5 step=0.1 id='Delay'>
+<input type='number' min=0 max=10 value=5 step=0.1 id='DelayNumber'>
 <p>Width (ms)</p>
-<input type='range' min=0 max='20' value=10 step='any' id='Width'>
-<span id='WidthLabel'></span>
+<input type='range' min=0 max='20' value=10 step=0.1 id='Width'>
+<input type='number' min=0 max='20' value=10 step=0.1 id='WidthNumber'>
 <p>Cut-off Frequency (Hz)</p>
-<input type='range' min=0 max='10000' value='10000' step='any' id='Freq'>
-<span id='Freq label'></span>
+<input type='range' min=0 max='10000' value='10000' step=1 id='Freq'>
+<input type='number' min=0 max='10000' value='10000' step=1 id='FreqNumber'>
 <p></p>
 <input type='button' value='play' id='Play'>
 <script src='KarplusStrong.js'></script>

@@ -13,15 +13,38 @@ NoiseGain.connect(delay)
 delay.connect(feedbackGain)
 feedbackGain.connect(delay)
 feedbackGain.connect(context.destination)
-Decay.oninput = function() {
-  feedbackGain.gain.value=this.value
-  DecayLabel.innerHTML = this.value
+//user interface
+
+Delay.oninput = () =>  {
+  delay.delayTime.value = Delay.value / 1000
+  DelayNumber.value = Delay.value
 }
-Delay.oninput = function() {
-  delay.delayTime.value=0.001*this.value
-  DelayLabel.innerHTML = this.value
+DelayNumber.oninput = () =>  {
+  delay.delayTime.value = DelayNumber.value
+  Delay.value = DelayNumber.value
 }
-Width.oninput = function() { WidthLabel.innerHTML = this.value}
+Decay.oninput = () => {
+  feedbackGain.gain.value = Decay.value
+  DecayNumber.value = Decay.value
+}
+DecayNumber.oninput = () => {
+  feedbackGain.gain.value = DecayNumber.value
+  Decay.value = DecayNumber.value
+}
+Width.oninput = () => {
+  WidthNumber.value = Gain.value
+}
+WidthNumber.oninput = () => {
+  Width.value = WidthNumber.value
+}
+Freq.oninput = () => {
+  //feedback.gain.value = Gain.value
+  FreqNumber.value = Gain.value
+}
+FreqNumber.oninput = () => {
+  //feedback.gain.value = FreqNumber.value
+  Freq.value = FreqNumber.value
+}
 Play.onclick = function() {
   context.resume()
   let now = context.currentTime
