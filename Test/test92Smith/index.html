@@ -1,0 +1,50 @@
+<p>Amplitude</p>
+<input type='range' min=0.01 max=0.99 value=0.5 step=0.01 id='AmpSlider'>
+<input type='number' min=0.01 max=0.99 value=0.5 step=0.01 id='AmpNumber'>
+<p>Pitch (Hz)</p>
+<input type='range' min=20 max=20000 value=500 step=1 id='PitchSlider'>
+<input type='number' min=20 max=20000 value=500 step=1 id='PitchNumber'>
+<p>Pick position</p>
+<input type='range' min=0.005 max=0.2 value=0.1 step=0.001 id='PickPositionSlider'>
+<input type='number' min=0.005 max=0.2 value=0.1 step=0.001 id='PickPositionNumber'>
+<p>Pickup position</p>
+<input type='range' min=0.005 max=0.995 value=0.2 step=0.001 id='PickupPositionSlider'>
+<input type='number' min=0.005 max=0.995 value=0.2 step=0.001 id='PickupPositionNumber'>
+<br>
+<script src='recorder.js'></script>
+<button onclick='Start()'>Start</button>
+<button onclick='Stop()'>Stop</button>
+<audio controls id='audio'></audio>
+<button onclick="pluck()">Pluck string</button>
+<script>
+  let context = new AudioContext,
+        Noise = new AudioBufferSourceNode(context,{loop:true}),
+        NoiseGain = new GainNode(context,{gain:0}),
+        output = new GainNode(context)    
+  var Recording = new Recorder(output)
+  function Start() {
+    context.resume()
+    Recording.record()
+  }
+  function Stop() {
+    Recording.stop()
+    Recording.exportWAV(blob => audio.src = URL.createObjectURL(blob))
+  }    
+  function pluck() {
+    context.resume()
+    let now = context.currentTime
+    NoiseGain.gain.setValueAtTime(0.5, now)
+    NoiseGain.gain.linearRampToValueAtTime(0, now + 0.01)
+  }
+  context.audioWorklet.addModule('waveguideWorklets.js').then(() => {   
+    pluckedString= new AudioWorkletNode(context,'waveguide-processor')
+    Noise.buffer = context.createBuffer(1,context.sampleRate,context.sampleRate)
+    for (i=0;i<context.sampleRate;i++) Noise.buffer.getChannelData(0)[i] = 2*Math.random()-1
+    Noise.start()    
+    Noise.connect(NoiseGain)
+    NoiseGain.connect(pluckedString)    
+    NoiseGain.connect(output)
+    pluckedString.connect(output)
+    output.connect(context.destination)
+  })
+</script>

@@ -6,6 +6,7 @@
     <li><a href="DelayNode Implementations/KarplusStrong/KarplusStrong.html">Simplified Karplus Strong v1</a></li>
     <li><a href="WorkletImplementations/KarplusStrong/KarplusStrongV2.html">
         Simplified Karplus Strong v2- An audio worklet version</a></li>
+    <li><a href="WorkletImplementations/IdealPluckedString/index.html">Ideal plucked string</a></li>
     <li>Negative feedback</li>
     <li>Digital Waveguide Filters</li>
     <li>Nonlinearities in the feedback filter</li>
@@ -42,7 +43,6 @@ One way to model this is to use a sigmoid nonlinear function such as <math><mi>t
 high values. This will also allow sustained notes without instability.<br>
   To Do!<br>
 A waveguide model with filters and a nonlinearity.
-
     
 <h2>Removing DC offset</h2>
 Suppose a nonlinearity with too much slope at the origin is applied. That is, |NL'(0)|>1, assuming NL includes the feedback.
@@ -56,9 +56,9 @@ Digital filters are based on delay. So by introducing a filter, we're changing t
 
 where:
 <ul>
-<li>K is the delay length
-<li>f is the desired pitch
-<li>f<sub>c</sub> is the cutoff frequency of the inner filter
+<li><em>K</em> is the delay length
+<li><em>f</em> is the desired pitch
+<li><em>f<sub>c</sub></em> is the cutoff frequency of the inner filter
 <li>c1 and c2 are constants tied to the inner filter algorithm being used
 </ul>
 A waveguide model playing a melody. For the simple 1-pole filter used here, we obtain the constants c1≈0.1786c1≈0.1786 and c2≈1.011c2≈1.011
