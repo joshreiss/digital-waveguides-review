@@ -1,0 +1,47 @@
+<script>
+function PlainModule(buffer) {
+  var values = new Float64Array(buffer);
+  function logSum(start, end) {
+    var sum = 0;
+    for (var i = start; i < end; i++) sum += Math.log(values[i])
+    return sum;
+  }
+  function geometricMean(start, end) { return Math.exp(logSum(start, end) / (end - start)); }
+  return { geometricMean: geometricMean };
+}
+function ASMModule(stdlib, foreign, buffer) {
+  "use asm";
+  var exp = stdlib.Math.exp;
+  var log = stdlib.Math.log;
+  var values = new stdlib.Float64Array(buffer);
+  function logSum(start, end) {
+    start = start|0;
+    end = end|0;
+    var sum = 0.0, p = 0, q = 0;
+    // asm.js forces byte addressing of the heap by requiring shifting by 3
+    // |0 converts to int, + annotates as double, >>
+    for (p = start << 3, q = end << 3; (p|0) < (q|0); p = (p + 8)|0) sum = sum + +log(values[p>>3]);
+    //for (p = start*8, q = end*8; (int)p < (int)q; p = (int)(p + 8)) sum = sum + (float)log(values[p/8]);
+    return +sum;
+  }
+  function geometricMean(start, end) {
+    start = start|0;
+    end = end|0;
+    return +exp(+logSum(start, end) / +((end - start)|0));
+  }
+  return { geometricMean: geometricMean };
+}
+var fakeWindow = {
+  Float64Array: Float64Array,
+  Math: { log: (x) => Math.log(x), exp: (x) => Math.exp(x) }
+}
+var values = new Float64Array(0x10); //16 values
+for (var i = 0; i <0x10; i++) values[i] = i + 1;
+heap = values.buffer
+var fast = ASMModule(window, null, heap);
+var slow = ASMModule(fakeWindow, null, heap);
+var plain = PlainModule(heap);
+console.log(fast.geometricMean(0, 0x10));
+console.log(slow.geometricMean(0, 0x10));
+console.log(plain.geometricMean(0, 0x10));
+</script>

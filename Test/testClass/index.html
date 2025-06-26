@@ -1,0 +1,22 @@
+<button onclick="context.resume()">start</button>
+<script>
+    class SimpleNode{
+      constructor(audioContext) {
+        this.context = audioContext      
+        this.input = this.context.createGain()
+        this.output = this.context.createGain()
+        this.level = new GainNode(this.context, {gain:0.1})
+        this.input.connect(this.level)
+        this.level.connect(this.output)      
+      }       
+      connect(destination) { this.output.connect(destination) }// Connect output    
+      setGain(G) { this.level.gain.value = G }
+    }  
+    context = new AudioContext
+    tone = new OscillatorNode(context)
+    classNode = new SimpleNode(context)    
+    classNode.setGain(.5)
+    tone.start()    
+    tone.connect(classNode.input)
+    classNode.connect(context.destination)
+</script>
