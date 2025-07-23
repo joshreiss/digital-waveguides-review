@@ -1,0 +1,20 @@
+<button type="button" id="startStopButton" onclick="GuitarString();">Start</button>
+<script src="guitarstring_asm.js"></script>
+<script>
+  var context = new AudioContext
+  var sampleRate = context.sampleRate
+  function GuitarString() {
+    this.basicHz = 110;
+    var basicPeriodSamples = Math.round(sampleRate/this.basicHz);   
+    console.log('basicPeriodSamples',basicPeriodSamples) 
+    this.seedNoise = new Float32Array(basicPeriodSamples);
+    for (var i = 0; i < basicPeriodSamples; i++) this.seedNoise[i] = 2*Math.random()-1
+    this.asmWrapper = new AsmFunctionsWrapper();
+    var buffer = context.createBuffer(2, 4*sampleRate, sampleRate);// 1 second buffer
+    var hz = 130;    
+    this.asmWrapper.pluck(buffer,this.seedNoise,hz);
+    var bufferSource = new AudioBufferSourceNode(context,{buffer: buffer} );
+    bufferSource.connect(context.destination)
+    bufferSource.start(context.currentTime);
+  }
+</script>

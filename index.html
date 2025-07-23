@@ -8,7 +8,7 @@
         Simplified Karplus Strong v2- An audio worklet version</a></li>
     <li><a href="WorkletImplementations/IdealPluckedString/index.html">Ideal plucked string</a></li>
     <li>Negative feedback</li>
-    <li>Digital Waveguide Filters</li>
+    <li><a href="DWfilters/DWfilters.html">Digital Waveguide Filters</a></li>
     <li>Nonlinearities in the feedback filter</li>
     <li>Removing DC offset</li>
     <li>Controlling the Pitch </li>
@@ -26,15 +26,6 @@ Wind instrument waveguides, often model closed bores (such as pan flutes) with n
 So let the feedback gain be positive or negative. Notice that pitch seems lower by an octave when feedback is negative. 
 This is because a number is repeated after its sign is inverted twice, effectively doubling the delay length. Negative feedback also changes the timbre, because all even harmonics cancel themselves out. 
 
- <h2>Digital Waveguide Filters</h2>
-A physical medium absorbs high frequencies more heavily than low ones. 
-This can be modeled by placing a filter inside the loop. 
-The following model has lowpass filters both inside the loop and filtering only the excitation. 
-The lowpass filters are the default filters for the Web Audio API.<br>
- 
-To Do!<br>
-A basic waveguide model with two filters.
-
  <h2> Nonlinearities in the feedback filter</h2>
 The previous model, when filtered, produces only short notes, even with maximum feedback. But increasing the feedback above 1 would cause the system to go unstable.
 We previously multiplied the signal x by the feedback value g, in other words, applying a linear function <math><mi>g</mi><mi>x</mi></math>.
@@ -42,6 +33,8 @@ However, louder sounds are more heavily absorbed by the medium in a real environ
 One way to model this is to use a sigmoid nonlinear function such as <math><mi>tanh</mi><mfenced><mrow><mi>g</mi><mi>x</mi></mrow></mfenced></math> that gives less feedback for 
 high values. This will also allow sustained notes without instability.<br>
   To Do!<br>
+<img src="DelayNode Implementations/Nonlinearities/Nonlinearities diagram.png" width=495 height=290>><br>
+
 A waveguide model with filters and a nonlinearity.
     
 <h2>Removing DC offset</h2>

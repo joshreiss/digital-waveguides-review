@@ -1,10 +1,9 @@
 function AsmFunctionsWrapper() { }
 AsmFunctionsWrapper.prototype.initAsm = function(heapSize) {
-  var roundedHeapSize = getNextValidFloat32HeapLength(heapSize);
-  // data in/out via heap. don't allocate new heap each time; seedNoise.length will be different depending on string, so enlarge as needed
-  this.heap = new Float32Array(roundedHeapSize)
+  // data in/out via heap.  seedNoise.length will be different depending on string, so enlarge as needed
+  this.heap = new Float32Array(1048576)
   var heapBuffer = this.heap.buffer;// heap passed in as plain ArrayBuffer (.buffer is ArrayBuffer referenced by Float32Buffer)
-  var foreignFunctions = { random: Math.random, round: Math.round };// nonasm functions referenced via foreign function interface 
+  var foreignFunctions = { random: Math.random, round: Math.round };// nonasm functions 
   this.asm = asmFunctions(window, foreignFunctions, heapBuffer); // do this here so only recreate asm functions if needed
 }
 AsmFunctionsWrapper.prototype.pluck = function(channelBuffer,seedNoise,hz) {
@@ -16,19 +15,10 @@ AsmFunctionsWrapper.prototype.pluck = function(channelBuffer,seedNoise,hz) {
   for (var i = 0; i < seedNoise.length; i++) heapFloat32[i] = seedNoise[i];
   var heapOffsets = { seedStart: 0,seedEnd: seedNoise.length - 1, targetStart: seedNoise.length,targetEnd: seedNoise.length + channelBuffer.length - 1 };
   asm.renderKarplusStrong(heapOffsets.seedStart,heapOffsets.seedEnd,heapOffsets.targetStart,heapOffsets.targetEnd,hz);
-  for (i=0;i<channelBuffer.getChannelData(0).length;i++) { channelBuffer.getChannelData(0)[i] = heapFloat32[heapOffsets.targetStart+i] * 0.5; }
-  for (i=0;i<channelBuffer.getChannelData(1).length;i++) { channelBuffer.getChannelData(1)[i] = heapFloat32[heapOffsets.targetStart+i] * 0.5; }
+  for (i=0;i<channelBuffer.getChannelData(0).length;i++) channelBuffer.getChannelData(0)[i] = heapFloat32[heapOffsets.targetStart+i] * 0.5;
+  for (i=0;i<channelBuffer.getChannelData(1).length;i++) channelBuffer.getChannelData(1)[i] = heapFloat32[heapOffsets.targetStart+i] * 0.5;
 };
-// http://asmjs.org/spec/latest/#modules byte length must be 2^n for n in [12, 24]
-function getNextValidFloat32HeapLength(desiredLengthFloats) {
-  var heapLengthBytes;
-  var desiredLengthBytes = desiredLengthFloats << 2;
-  if (desiredLengthBytes <= Math.pow(2, 12)) heapLengthBytes = Math.pow(2, 12);
-  else if (desiredLengthBytes < Math.pow(2, 24)) heapLengthBytes = Math.pow(2, Math.ceil(Math.log2(desiredLengthBytes)));
-  console.log('heapLengthBytes',heapLengthBytes)
-  return heapLengthBytes;
-}
-// standard asm.js block; stdlib: calling library functions, foreign: calling external functions, heap: buffer for all data in/out of function
+// standard asm.js block; stdlib: calling library functions, foreign: calling external functions, heap: buffer for data in/out of function
 function asmFunctions(stdlib, foreign, heapBuffer) {
   "use asm";
   var heap = new stdlib.Float32Array(heapBuffer);// heap supposed to come in as just ArrayBuffer so first need to get Float32 view of it
@@ -50,7 +40,10 @@ function asmFunctions(stdlib, foreign, heapBuffer) {
     var heapTargetIndexBytes = 0;// byte-addressed index of heap as whole where we'll be writing
     var lastPeriodInputIndexBytes = 0;// byte-addressed index of heap as whole from where we take samples from last period
     periodSamples = ~~(+round( +(sampleRate>>>0)) / hz);
+    console.log('periodSamples',periodSamples)
+    console.log('hz',hz)
     sampleCount = (targetArrayEnd-targetArrayStart+1)|0;
+    console.log('sampleCount',sampleCount)
     for (targetIndex = 0; (targetIndex|0) < (sampleCount|0); targetIndex = (targetIndex + 1)|0) {
       heapTargetIndexBytes = (targetArrayStart + targetIndex) << 2;
       if ((targetIndex|0) < (periodSamples|0)) { // for first period, feed in noise. note heap index has to be bytes.
