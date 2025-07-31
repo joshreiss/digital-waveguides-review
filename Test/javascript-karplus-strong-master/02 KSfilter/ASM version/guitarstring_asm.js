@@ -41,20 +41,16 @@ function asmFunctions(stdlib, foreign, heapBuffer) {
     var periodSamples = 0;
     var sampleCount = 0;
     var noiseSample = 0.0;
+    var lastOutputSample = 0.0;
+    var curInputSample = 0.0;
+    var curOutputSample = 0.0;
+    var smoothingFactor = 0.5;
     var heapNoiseIndexBytes = 0;// byte-addressed index of heap as whole that we get noise samples from
     var targetIndex = 0;    // Float32-addressed index of  portion of heap that we'll be writing to
     var heapTargetIndexBytes = 0;// byte-addressed index of heap as whole where we'll be writing
     var lastPeriodInputIndexBytes = 0;// byte-addressed index of heap as whole from where we take samples from last period
     periodSamples = ~~(+round( +(sampleRate>>>0)) / hz);
-    console.log('periodSamples',periodSamples)
-    console.log('hz',hz)    
-    var lastOutputSample = 0.0;
-    var curInputSample = 0.0;
-    var curOutputSample = 0.0;
-    var smoothingFactor = 0.5;
     sampleCount = (targetArrayEnd-targetArrayStart+1)|0;
-    console.log('sampleCount',sampleCount)
-    console.log('smooth',smoothingFactor)
     for (targetIndex = 0; (targetIndex|0) < (sampleCount|0); targetIndex = (targetIndex + 1)|0) {
       heapTargetIndexBytes = (targetArrayStart + targetIndex) << 2;
       if ((targetIndex|0) < (periodSamples|0)) { // for first period, feed in noise. note heap index has to be bytes.

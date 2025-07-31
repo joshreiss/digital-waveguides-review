@@ -1,4 +1,5 @@
 function getControlsValues() {
+  pitchValue.value = pitchSlider.value;
   var stringTension = stringTensionSlider.valueAsNumber;
   stringTensionValue.value = stringTensionSlider.value;
   var stringDamping = stringDampingSlider.valueAsNumber;
@@ -12,6 +13,3 @@ function getControlsValues() {
   return { stringTension: stringTension, stringDamping: stringDamping, stringDampingVariation: stringDampingVariation, 
     pluckDamping: pluckDamping, pluckDampingVariation: pluckDampingVariation };
 }
-var context = new AudioContext
-var sampleRate = context.sampleRate;
-var guitar = new Guitar()
