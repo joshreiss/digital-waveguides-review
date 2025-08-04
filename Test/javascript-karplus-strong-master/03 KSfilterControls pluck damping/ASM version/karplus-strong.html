@@ -1,24 +1,41 @@
+
 <button type="button" id="startStopButton" onclick="GuitarString();">Start</button><br>
 <input type="range" id="pitchSlider" oninput="getControlsValues()" min="0.1" max="1000" step="0.1" value="130">
 <output id="pitchValue">130</output> Pitch<br>
 <input type="range" id="stringDampingSlider" oninput="getControlsValues()" min="0.1" max="0.7" step="0.1" value="0.5">
 <output id="stringDampingValue">0.5</output> String damping<br>
+<input type="range" id="stringTensionSlider" oninput="getControlsValues()" min="0.0" max="1.0" step="0.1" value="0.0">
+ <output id="stringTensionValue">0.0</output> String tension<br>
+<script src='recorder.js'></script>
+<button onclick='Start()'>Start</button>
+<button onclick='Stop()'>Stop</button>
+<audio controls id='audio'></audio>
 <script src="guitarstring_asm.js"></script>
 <script>
   var context = new AudioContext
-  var sampleRate = context.sampleRate
+  output = new GainNode(context)
+  var sampleRate = context.sampleRate  
+  var Recording = new Recorder(output)
+  function Start() {
+    context.resume()
+    Recording.record()
+  }
+  function Stop() {
+    Recording.stop()
+    Recording.exportWAV(blob => audio.src = URL.createObjectURL(blob))
+  }
   function GuitarString() {
     this.basicHz = 110;
     var basicPeriodSamples = Math.round(sampleRate/this.basicHz);   
     this.seedNoise = new Float32Array(basicPeriodSamples);
-    for (var i = 0; i < basicPeriodSamples; i++) this.seedNoise[i] = 2*Math.random()-1
+    for (var i = 0; i < basicPeriodSamples; i++) this.seedNoise[i] = 0.5
     this.asmWrapper = new AsmFunctionsWrapper();
     var buffer = context.createBuffer(2, 4*sampleRate, sampleRate);// 1 second buffer
     var hz = pitchSlider.value;
     console.log(stringDampingValue.value)
-    this.asmWrapper.pluck(buffer,this.seedNoise,hz,stringDampingValue.value);
+    this.asmWrapper.pluck(buffer,this.seedNoise,hz,stringDampingValue.value,stringTensionValue.value);
     var bufferSource = new AudioBufferSourceNode(context,{buffer: buffer} );
-    bufferSource.connect(context.destination)
+    bufferSource.connect(output).connect(context.destination)
     bufferSource.start(context.currentTime);
   }
 </script>

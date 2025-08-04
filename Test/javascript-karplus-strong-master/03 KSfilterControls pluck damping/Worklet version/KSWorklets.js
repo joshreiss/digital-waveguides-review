@@ -15,6 +15,12 @@ registerProcessor('feedbackDelay-processor', class extends AudioWorkletProcessor
     this.Buffer= new Array(48000).fill(0)
     this.ReadPtr=0,this.WritePtr=0
     this.lastOutput = 0
+    this.message = "start"
+    console.log("start")
+    this.port.onmessage = (event) => {
+      this.message = event.data
+      console.log(event.data)
+    }
   }
   process(inputs, outputs, parameters) {
     let currentInput = 0;
@@ -22,8 +28,9 @@ registerProcessor('feedbackDelay-processor', class extends AudioWorkletProcessor
         bufferSize=this.Buffer.length
     for (let i=0;i<outputs[0][0].length;++i) {
       currentInput = this.Buffer[this.ReadPtr]
-      this.lastOutput = lowPass(this.lastOutput, currentInput, parameters.smoothingFactor[0])
-      if (this.ReadPtr >bufferSize*.61) this.lastOutput=0 //first attempt string tension
+      if (this.message == 'stop') this.lastOutput = lowPass(this.lastOutput, currentInput, 0.1)
+      else this.lastOutput = lowPass(this.lastOutput, currentInput, parameters.smoothingFactor[0])
+      //if (this.ReadPtr >bufferSize*.61) this.lastOutput=0 //first attempt string tension
       outputs[0][0][i]= this.lastOutput+inputs[0][0][i]
       this.Buffer[this.WritePtr]=outputs[0][0][i]
       this.WritePtr++
@@ -33,6 +40,28 @@ registerProcessor('feedbackDelay-processor', class extends AudioWorkletProcessor
     }
     function lowPass(lastOutput, currentInput, smoothingFactor) {// simple discrete-time lowpass filter
       return (smoothingFactor * currentInput + (1.0 - smoothingFactor) * lastOutput)
+    }
+    return true
+  }
+})
+registerProcessor('smoothing-filter', class extends AudioWorkletProcessor {
+  static get parameterDescriptors() { return [
+    {name:'smoothingFactor',defaultValue:0.5,minValue:0}
+  ]}
+  constructor() {
+    super()
+    this.lastOut = 0
+    this.j=0
+  }
+  process(inputs, outputs, parameters) {
+    if (this.j<100) console.log(outputs[0].length)
+      this.j++
+    let smoothingFactor = parameters.smoothingFactor[0]
+    for (let i=0;i<outputs[0].length;++i) {
+      for (let j=0;j<outputs[0][i].length;++j) {
+        outputs[0][i][j]= smoothingFactor * inputs[0][i][j] + (1.0-smoothingFactor) * this.lastOut
+        this.lastOut=outputs[0][i][j]
+      }
     }
     return true
   }

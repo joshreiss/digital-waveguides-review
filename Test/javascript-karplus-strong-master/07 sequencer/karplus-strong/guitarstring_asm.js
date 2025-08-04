@@ -213,8 +213,6 @@ function asmFunctions(stdlib, foreign, heapBuffer) {
                 noiseSample = noiseSample * (1.0 - characterVariation);// create room for character variation noise
                 noiseSample = noiseSample + characterVariation * (-1.0 + 2.0 * (+random()));// add character variation
                 noiseSample = noiseSample * velocity;// also velocity
-                // noiseSample = noiseSample * (1 - characterVariation) + characterVariation * (2*random()-1)
-
                 // by varying 'pluck damping', we can control the spectral content of the input noise
                 curInputSample =
                     +lowPass(curInputSample, noiseSample,pluckDampingCoefficient);
