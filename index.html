@@ -1,17 +1,17 @@
 <b>Digital Waveguides Review - Code examples</b>
 
 <ul>
-    <li><a href="DelayNode Implementations/CombFilter/combFilter.html">Introducing Delay Lines- the comb filter</a></li>
-    <li><a href="DelayNode Implementations/FeedbackDelay/feedbackDelay.html">Feedback delay</a></li>
-    <li><a href="DelayNode Implementations/KarplusStrong/KarplusStrong.html">Simplified Karplus Strong v1</a></li>
-    <li><a href="WorkletImplementations/KarplusStrong/KarplusStrongV2.html">
-        Simplified Karplus Strong v2- An audio worklet version</a></li>
-    <li><a href="WorkletImplementations/IdealPluckedString/index.html">Ideal plucked string</a></li>
-    <li>Negative feedback</li>
-    <li><a href="DWfilters/DWfilters.html">Digital Waveguide Filters</a></li>
-    <li>Nonlinearities in the feedback filter</li>
+    <li><a href="01_CombFilter/combFilter.html">Introducing Delay Lines- the comb filter</a></li>
+    <li><a href="02_FeedbackDelay/feedbackDelay.html">Feedback delay</a> based on routing the output of the delay node back to the input</li>
+    <li><a href="03_KarplusStrongV1/KarplusStrong.html">Simplified Karplus Strong v1</a></li>
+    <li><a href="04_KarplusStrongV2/KarplusStrongV2.html">Simplified Karplus Strong v2- An audio worklet version, implemented without the limitations on the pitch range that come from the DelayNode in a feedback loop</li>
+</a></li>
+    <li><a href="05_IdealPluckedString/index.html">Ideal plucked string</a></li>
+    <li><a href="06_NegativeFeedback/index.html">Negative feedback</a></li>
+    <li><a href="07_DWfilters/DWfilters.html">Digital Waveguide Filters</a></li>
+    <li><a href="08_Nonlinearities/Nonlinearities.html">Nonlinearities in the feedback filter</a></li>
     <li>Removing DC offset</li>
-    <li>Controlling the Pitch </li>
+    <li><a href="10_Pitch control/index.html">Controlling the Pitch</a>/li>
     <li>Note transitions</li>
     <li>Basic waveguide implementations</li>
     <li>Fractional delay</li>
@@ -20,42 +20,15 @@
     <li>Reverb example</li>
 </ul>
 
-<h2>Negative feedback</h2>
+Some code examples correspond to examples from Chapters 10 and 19 of the book 'Working with the Web Audio API'.
 
-Wind instrument waveguides, often model closed bores (such as pan flutes) with negative feedback.
-So let the feedback gain be positive or negative. Notice that pitch seems lower by an octave when feedback is negative. 
-This is because a number is repeated after its sign is inverted twice, effectively doubling the delay length. Negative feedback also changes the timbre, because all even harmonics cancel themselves out. 
-
- <h2> Nonlinearities in the feedback filter</h2>
-The previous model, when filtered, produces only short notes, even with maximum feedback. But increasing the feedback above 1 would cause the system to go unstable.
-We previously multiplied the signal x by the feedback value g, in other words, applying a linear function <math><mi>g</mi><mi>x</mi></math>.
-However, louder sounds are more heavily absorbed by the medium in a real environment. 
-One way to model this is to use a sigmoid nonlinear function such as <math><mi>tanh</mi><mfenced><mrow><mi>g</mi><mi>x</mi></mrow></mfenced></math> that gives less feedback for 
-high values. This will also allow sustained notes without instability.<br>
-  To Do!<br>
-<img src="DelayNode Implementations/Nonlinearities/Nonlinearities diagram.png" width=495 height=290>><br>
-
-A waveguide model with filters and a nonlinearity.
+Feel free to contact me at joshua.reiss@qmul.ac.uk
     
 <h2>Removing DC offset</h2>
 Suppose a nonlinearity with too much slope at the origin is applied. That is, |NL'(0)|>1, assuming NL includes the feedback.
 So a slight positive or negative average offset can get amplified inside the loop until the signal gets squashed. 
 This can result in the output disappearing at high feedback values. To avoid this, a one-pole 30Hz high pass filter is used in the feedback loop.
   
-<h2> Controlling the Pitch </h2>
-The first model's pitch was simply determined by the delay length. But not, the pitch can change when the inner filter's frequency changes.
-Digital filters are based on delay. So by introducing a filter, we're changing the total length of the cumulative delay line. In fact, the filters we're using have a phase delay that's different for every frequency. This makes it more difficult to find an exact solution to compensate for this delay, as the filter introduces slight inharmonicity, and it affects the pitch in a way that depends on the pitch. Thankfully we don't actually need to use our brains: we can use regression instead! Just measure how the filter affects the pitch and fit an equation onto it. For simple lowpass filters, we obtain something in the form:
-<math><mi>K</mi><mo>=</mo><mfrac><mrow><msub><mi>c</mi><mn>2</mn></msub></mrow><mrow><mi>f</mi><mo>+</mo><msub><mi>c</mi><mn>1</mn></msub><msup><mi>f</mi><mn>2</mn></msup><mo>/</mo><msub><mi>f</mi><mi>c</mi></msub></mrow></mfrac></math>
-
-where:
-<ul>
-<li><em>K</em> is the delay length
-<li><em>f</em> is the desired pitch
-<li><em>f<sub>c</sub></em> is the cutoff frequency of the inner filter
-<li>c1 and c2 are constants tied to the inner filter algorithm being used
-</ul>
-A waveguide model playing a melody. For the simple 1-pole filter used here, we obtain the constants c1≈0.1786c1≈0.1786 and c2≈1.011c2≈1.011
-
 <h2> Note Transitions</h2>
 The model above has staccato notes and does not implement proper note transitions. If we attempt to change the length of the delay line while a note is playing, the output does not remotely resemble a legato sound (at best, we can change it slowly and obtain a slide whistle sound). In the legato transition of a real flute, a tone hole is opened or closed, and the bore effectively has a Y-junction during the transition. 
 This can be better modeled by cross-fading between two fixed-length delay lines in the loop. 

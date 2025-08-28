@@ -49,8 +49,8 @@ AsmFunctionsWrapper.prototype.pluck = function(channelBuffer,seedNoise,sampleRat
     // for negative stereoSpreads, note pushed to left; for positive stereoSpreads, note pushed to right
     var gainL = (1 - stereoSpread) * 0.5;
     var gainR = (1 + stereoSpread) * 0.5;
-    for (i = 0; i < targetArrayL.length; i++) { targetArrayL[i] = heapFloat32[heapOffsets.targetStart+i] * gainL; }
-    for (i = 0; i < targetArrayL.length; i++) { targetArrayR[i] = heapFloat32[heapOffsets.targetStart+i] * gainR; }
+    for (i=0; i < targetArrayL.length; i++) { targetArrayL[i] = heapFloat32[heapOffsets.targetStart+i] * gainL; }
+    for (i=0; i < targetArrayL.length; i++) { targetArrayR[i] = heapFloat32[heapOffsets.targetStart+i] * gainR; }
 };
 // http://asmjs.org/spec/latest/#modules
 //  byte length must be 2^n for n in [12, 24], or for bigger heaps, 2^24 * n for n >= 1
