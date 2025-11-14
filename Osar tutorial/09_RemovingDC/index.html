@@ -1,0 +1,5 @@
+<h2> Removing DC offset </h2>
+
+Suppose a nonlinearity with too much slope at the origin is applied. That is, |NL'(0)|>1, assuming NL includes the feedback.
+So a slight positive or negative average offset can get amplified inside the loop until the signal gets squashed. 
+This can result in the output disappearing at high feedback values. To avoid this, a one-pole 30Hz high pass filter is used in the feedback loop.

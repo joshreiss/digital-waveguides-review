@@ -1,0 +1,83 @@
+<select id='Source'>
+  <option value='a'>Default</option>
+  <option value='b'>C2 - damped piano</option>
+  <option value='c'>E2 - damped piano</option>
+  <option value='c'>G2 - damped piano</option>
+  <option value='a'>C3 - regular piano</option>
+  <option value='a'>A - damped piano</option>
+  <option value='a'>A - damped piano</option>
+  <option value='a'>A</option>
+  <option value='a'>A</option>
+</select>
+Source<br>
+<input type='range' min=0 max=1 value=0.2 step=0.02 id='width'>
+<input type='number' min=0 max=1 value=0.2 step=0.02 id='widthNumber'>
+width<br>
+<input type='range' min=0.8 max=0.9999 value=0.97 step=0.001 id='decay'>
+<input type='number' min=0.8 max=0.9999 value=0.97 step=0.001 id='decayNumber'>
+decay <br>
+<input type='range' min=0 max=10000 value=4000 step=5 id='cutoff'>
+<input type='number' min=0 max=10000 value=4000 step=5 id='cutoffNumber'>
+cutoff frequency (Hz)<br>
+<input type='range' min=0 max=64 value=41 step=1 id='note'>
+<input type='number' min=0 max=64 value=41 step=1 id='noteNumber'>
+note<br>
+<input type='range' min=0 max=1 value=0.5 step=0.1 id='sine'>
+<input type='number' min=0 max=1 value=0.5 step=0.1 id='sineNumber'>
+sine<br>
+<input type='range' min=0 max=1 value=0.5 step=0.1 id='sawtooth'>
+<input type='number' min=0 max=1 value=0.5 step=0.1 id='sawtoothNumber'>
+sawtooth<br>
+<input type='range' min=0 max=1 value=0.5 step=0.1 id='noise'>
+<input type='number' min=0 max=1 value=0.5 step=0.1 id='noiseNumber'>
+noise<br>
+<p></p>
+<input type='button' value='pluck' id='Pluck'>
+<input type='button' value='show' id='Show'>
+<script>
+  width.oninput = () => widthNumber.value = width.value
+  widthNumber.oninput = () => width.value = widthNumber.value
+  decay.oninput = () => decayNumber.value = decay.value
+  decayNumber.oninput = () => decay.value = decayNumber.value
+  cutoff.oninput = () => cutoffNumber.value = cutoff.value
+  cutoffNumber.oninput = () => cutoff.value = cutoffNumber.value
+  note.oninput = () => noteNumber.value = note.value
+  noteNumber.oninput = () => note.value = noteNumber.value
+  sine.oninput = () => sineNumber.value = sine.value
+  sineNumber.oninput = () => sine.value = sineNumber.value
+  sawtooth.oninput = () => sawtoothNumber.value = sawtooth.value
+  sawtoothNumber.oninput = () => sawtooth.value = sawtoothNumber.value
+  noise.oninput = () => noiseNumber.value = noise.value
+  noiseNumber.oninput = () => noise.value = noiseNumber.value
+  Show.onclick=()=> {
+    console.log(Source.value)
+    console.log(width.value)
+    console.log(decay.value)
+    console.log(cutoff.value)
+    console.log(note.value)
+    console.log(sine.value)
+    console.log(sawtooth.value)
+    console.log(noise.value)
+    console.log(Source.selectedIndex)
+    if (Source.value == 'a') {
+      sine.value=0.5
+      sawtooth.value=0.5
+      noise.value=0.5
+      width.value=0.02
+      decay.value=0.97
+      cutoff.value=4000
+      note.value=41
+    }
+    
+    if (Source.value == 'b') {
+      sine.value=0
+      sawtooth.value=0
+      noise.value=0.99
+      width.value=0.02
+      decay.value=0.95
+      cutoff.value=5700
+      note.value=36
+    }
+  }
+</script>
+<script src='PluckedString.js'></script>

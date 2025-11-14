@@ -1,0 +1,31 @@
+<b>Digital Waveguides Review - Code examples</b>
+
+<i>This is based on https://amid.fish/javascript-karplus-strong</i><br>
+
+<ul>
+    <li><a href="01 KSMinimal/Worklet version/">Just a basic feedback delay, with gain</a></li>
+    <li><a href="02 KSfilter/">Basic feedback delay, with filter</a></li>
+    <li><a href="03 KSfilterControls/">Now with pitch and string damping controls</a></li>
+    <li><a href="03 KSfilterControls pluckDamping/">added pluck damping</a></li>
+    <li><a href="04 KSfilterControls string tension/">added string tension</a></li>
+    <li><a href="05 KSfilterControls- character pluckdamp">added character variation</a></li>
+    <li><a href="06 KSfilterControls- tension character pluckdamp">added character variation</a></li>
+    <li><a href="07 asm 127/">07 asm? - first to include variation, in guitarstring asm</a></li>
+    <li><a href="08 attempt3 128/">attempt3?</a></li>
+    <li><a href="09 sequencer/">Sequencer</a></li>
+    <li><a href="10 sequencer/">Sequencer</a></li>
+    <li><a href="11/">Removing DC offset</a></li>
+</ul>
+
+<!-- script>
+pluckDamping,pluckDampingVariation;
+pluckDampingMin = 0.1, pluckDampingMax = 0.9;
+pluckDampingVariationMin=pluckDampingVariationMax=pluckDampingVariationDifference=pluckDampingCoefficient=0
+pluckDampingVariationMax = pluckDamping + (pluckDampingMax - pluckDamping) * pluckDampingVariation
+pluckDampingVariationMin = pluckDamping - (pluckDamping - pluckDampingMin) * pluckDampingVariation
+pluckDampingVariationDifference = pluckDampingVariationMax - pluckDampingVariationMin
+                                = (pluckDampingMax- pluckDampingMin) * pluckDampingVariation  
+pluckDampingCoefficient = pluckDampingVariationMin + random() * pluckDampingVariationDifference
+                        = pluckDampingVariationMin + random() * (pluckDampingVariationMax - pluckDampingVariationMin)
+                        = pluckDampingVariationMin + random() * (pluckDampingMax - pluckDampingMin) * pluckDampingVariation
+</script -->

@@ -1,0 +1,8 @@
+<h2>Note Transitions</h2>
+
+The model above has staccato notes and does not implement proper note transitions. If we attempt to change the length of the delay line while a note is playing, the output does not remotely resemble a legato sound (at best, we can change it slowly and obtain a slide whistle sound). In the legato transition of a real flute, a tone hole is opened or closed, and the bore effectively has a Y-junction during the transition. 
+This can be better modeled by cross-fading between two fixed-length delay lines in the loop. 
+Two delay lines will generally suffice for any monophonic sequence of notes, since one of them can generate sound while the other  changes length.
+  To Do!<br>
+A waveguide model playing controllable legato notes. Move the "note" slider to control the notes.
+

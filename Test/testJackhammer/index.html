@@ -1,0 +1,124 @@
+<script>  //Create variables based on the controls
+    var state = false;
+    var size = this.parameters.createNumberParameter("sizeSlider", 50, 1, 50);
+    var spacing = this.parameters.createNumberParameter("spacingSlider", 5800, 100, 8000);
+    var length = this.parameters.createNumberParameter("lengthSlider", 0.5, 0.3, 1);
+    var diameter = this.parameters.createNumberParameter("diameterSlider", 0.025, 0.015, 0.050);
+    var clink = this.parameters.createNumberParameter("clinkSlider", 0.5, 0, 1);
+    var thud = this.parameters.createNumberParameter("thudSlider", 0.5, 0, 1);
+    var distance = this.parameters.createNumberParameter("distanceSlider", 0, 0, 0.99);
+    var startStopParam = this.parameters.createButtonParameter("startStop");
+    //Callbacks for the controls
+    Promise.all([this.context.audioWorklet.addModule('/audio-js/otherWorklets.js'), this.context.audioWorklet.addModule('/audio-js/filterWorklets.js'), this.context.audioWorklet.addModule('/audio-js/generatorWorklets.js')]).then(() => {
+        var pulses = new AudioWorkletNode(this.context, 'white-noise-generator');
+        var gain = this.context.createGain();
+        var thudGain = this.context.createGain();
+        var clinkGain = this.context.createGain();
+        var LongitudinalMode = []
+        var TransversalMode = []
+        var biquadFilter = this.context.createBiquadFilter();
+        biquadFilter.type = 'highpass';
+        biquadFilter.frequency = 0;
+        var lowshelf = this.context.createBiquadFilter();
+        lowshelf.type = 'lowshelf';
+        lowshelf.frequency = 2000;
+        lowshelf.gain.value = 50;
+        var distanceFilter = new AudioWorkletNode(this.context, 'StandardLowpass');
+        distanceFilter.parameters.get('frequency').value = 20000;
+        let numofModes = 5;
+        for (var i = 0; i < numofModes; i++) {
+            LongitudinalMode[i] = new AudioWorkletNode(this.context, 'hann-window');
+            TransversalMode[i] = new AudioWorkletNode(this.context, 'hann-window2');
+            pulses.connect(LongitudinalMode[i]);
+            pulses.connect(TransversalMode[i]);
+            LongitudinalMode[i].connect(clinkGain);
+            TransversalMode[i].connect(lowshelf);
+            lowshelf.connect(thudGain);
+        }
+        clinkGain.connect(gain)
+        thudGain.connect(gain)
+        let longitudinalModalFrequencies = [];
+        let transversalModalFrequencies = [];
+        let longBufferSize = [];
+        let transBufferSize = [];
+        speedOfSoundInSteel = 5200//meters per second
+        toolDiameter = 0.015//15mm to 50mm in meters
+        toolLength = 0.5//0.3m to 1m
+        gain.gain.value = 0
+        function LongcalcModes() {
+          for (var i = 1; i < numofModes; i++) {
+            longitudinalModalFrequencies[i] = (i * speedOfSoundInSteel) / (2 * toolLength);
+            longBufferSize[i] = audio_context.sampleRate / longitudinalModalFrequencies[i];
+            LongitudinalMode[i].parameters.get('bufferSize').value = parseInt(longBufferSize[i]);
+          }
+        }
+        LongcalcModes()
+        function TranscalcModes() {
+          for (var i = 1; i < numofModes; i++) {
+            //mode1:2:3:4 is approximately equal to 1:43.5:435:2250
+            let a = ((Math.pow(i, 2) * Math.PI * toolDiameter * speedOfSoundInSteel) / 8 * toolLength * toolLength);
+            let b = (1 - (1.2 * Math.pow(i * toolDiameter / toolLength, 2)));
+            let c = (Math.pow(((2 * i + 1) / 2 * i), 2))
+            transversalModalFrequencies[i] = a * b * c
+            //clamped because thebelow the 80 hz the vibrations audibly become seperate impulses
+            if (transversalModalFrequencies[i] < 80) transversalModalFrequencies[i] = 80;
+            transBufferSize[i] = audio_context.sampleRate / transversalModalFrequencies[i];
+          }
+          for (var i = 1; i < numofModes; i++) TransversalMode[i].parameters.get('bufferSize').value = parseInt(transBufferSize[i]);
+        }
+        TranscalcModes()
+        function setspacing() {
+          for (var i = 0; i < numofModes; i++) {
+            LongitudinalMode[i].parameters.get('spacing').value = 8000 - spacing.value;
+            TransversalMode[i].parameters.get('spacing').value = 8000 - spacing.value;
+          }
+        }
+        setspacing()
+        function setSize() {
+          for (var i = 0; i < numofModes; i++) {
+            LongitudinalMode[i].parameters.get('size').value = size.value;
+            TransversalMode[i].parameters.get('size').value = size.value;
+          }
+        }
+        var sineGain = this.context.createGain();
+        thud.trigger = function () { thudGain.gain.value = thud.value }.bind(thud);
+        clink.trigger = function () { clinkGain.gain.value = clink.value }.bind(clink);
+        size.trigger = function () { setSize(); }.bind(size);
+        spacing.trigger = function () { setspacing() }.bind(spacing);
+        length.trigger = function () {
+          toolLength = length.value;
+          LongcalcModes();
+          TranscalcModes();
+        }.bind(length);
+        diameter.trigger = function () {
+          toolDiameter = diameter.value;
+          TranscalcModes();
+        }.bind(diameter);
+        distance.trigger = function () { distanceFilter.parameters.get('frequency').value = (1 - distance.value) * 20000; }.bind(distance);
+        startStopParam.onclick = function () {
+          state = !state;
+          if (state) {
+            gain.gain.exponentialRampToValueAtTime(50, audio_context.currentTime + 0.1);
+            for (var i = 0; i < numofModes; i++) {
+              LongitudinalMode[i].parameters.get('spacing').cancelScheduledValues(0);
+              TransversalMode[i].parameters.get('spacing').cancelScheduledValues(0);
+              LongitudinalMode[i].parameters.get('spacing').exponentialRampToValueAtTime((8001 - spacing.value), audio_context.currentTime + 3);
+              TransversalMode[i].parameters.get('spacing').exponentialRampToValueAtTime((8001 - spacing.value), audio_context.currentTime + 3);
+            }
+          }
+          else {
+            for (var i = 0; i < numofModes; i++) {
+              LongitudinalMode[i].parameters.get('spacing').cancelScheduledValues(0);
+              TransversalMode[i].parameters.get('spacing').cancelScheduledValues(0);
+              LongitudinalMode[i].parameters.get('spacing').linearRampToValueAtTime(10000, audio_context.currentTime + 3);
+              TransversalMode[i].parameters.get('spacing').linearRampToValueAtTime(10000, audio_context.currentTime + 3);
+            }
+            gain.gain.linearRampToValueAtTime(0, audio_context.currentTime + 1);
+          }
+        }
+        setSize();
+        gain.connect(biquadFilter);
+        biquadFilter.connect(distanceFilter);
+        distanceFilter.connect(output);
+    })
+</script>

@@ -1,0 +1,51 @@
+<h2>Simplified Karplus Strong v2- An audio worklet version</h2>
+
+Here, we revisit the previous example, and show how it can be achieved using audio worklets instead.
+Use of audio worklets allows it to be implemented without the limitations on the pitch range that come from the DelayNode in a feedback loop</li>
+</a></li>
+
+<p>Decay</p>
+<input type='range' min=0.8 max='0.999' value='0.9' step='any' id='Decay'>
+<span id='DecayLabel'></span>
+<p>Delay (ms)</p>
+<input type='range' min=0 max=20 value=10 step='any' id='Delay'>
+<span id='DelayLabel'></span>
+<p>Width (ms)</p>
+<input type='range' min=0 max='20' value=10 step='any' id='Width'>
+<span id='WidthLabel'></span>
+<p>
+<input type='button' value='play' id='Play'>
+<script>
+  DecayLabel.innerHTML = Decay.value
+  DelayLabel.innerHTML = Delay.value
+</script>
+<script src='KarplusStrongV2.js'></script>
+
+<br>
+The core javascript code is simply<br>
+<pre>
+  registerProcessor('feedbackDelay-processor', class extends AudioWorkletProcessor {
+  static get parameterDescriptors() { return [
+    {name:'gain',defaultValue:0.9,minValue:-1,maxValue:1},
+    {name:'delayTime',defaultValue:10,minValue:0,maxValue:1000}]
+  }
+  constructor() {
+    super()
+    this.Buffer= new Array(48000).fill(0)
+    this.ReadPtr=0,this.WritePtr=0
+  }
+  process(inputs, outputs, parameters) {
+    let delaySamples=Math.round(sampleRate*parameters.delayTime[0]/1000),
+        bufferSize=this.Buffer.length
+    for (let i=0;i<outputs[0][0].length;++i) {
+      outputs[0][0][i]= parameters.gain[0]*this.Buffer[this.ReadPtr]+inputs[0][0][i]
+      this.Buffer[this.WritePtr]=outputs[0][0][i]
+      this.WritePtr++
+      if (this.WritePtr>=bufferSize) this.WritePtr=this.WritePtr-bufferSize
+      this.ReadPtr=this.WritePtr-delaySamples
+      if (this.ReadPtr<0) this.ReadPtr=this.ReadPtr+bufferSize
+    }
+    return true
+  }
+})
+</pre> 
