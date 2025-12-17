@@ -1,10 +1,8 @@
 var context = new AudioContext
 context.audioWorklet.addModule('Worklets.js').then(() => {
-  var width1 = width.value * 400
   var constantNode= new ConstantSourceNode(context,{offset:0})
   constantNode.start()
   aDelay = context.createDelay(1)
-  aDelay.delayTime.value = 1 / (440 * Math.pow (2, (note.value - 69) / 12)) - 128 / context.sampleRate
   var Osc = new OscillatorNode(context,{frequency:800})
   Osc.start()
   OscGain = new GainNode(context,{gain:0})
@@ -21,20 +19,22 @@ context.audioWorklet.addModule('Worklets.js').then(() => {
   PhasorGain.connect(OutGain)
   OscGain.connect(OutGain)
   var DriveNode = new multiplySignals(constantNode,OutGain,context)
-  var controlNode6  = new multiplySigVal(LPFilter1,decay.value,context)
-  controlNode6.connect(aDelay)
+  DecayGain = new GainNode(context,{gain:0})
+  LPFilter1.connect(DecayGain)
+  DecayGain.connect(aDelay)
   DriveNode.connect(aDelay)
   aDelay.connect(LPFilter1)
-  controlNode6.connect(context.destination)
-
-  width.onchange = function() { width1 = width.value*400 }
-  //DelayNode adds 128 samples to delay time, so highest pitch around E4. Compensate to set frequency properly.
-  note.onchange = ()=> { aDelay.delayTime.value = 1/(440 * Math.pow (2, (note.value - 69) / 12)) - 128/context.sampleRate }
-  cutoff.onchange = ()=> { LPFilter1.parameters.get('frequency') = cutoff.value}
-  sine.onchange = ()=> { OscGain.gain.value=sine.value }
-  sawtooth.onchange = ()=> { PhasorGain.gain.value=sawtooth.value}
-  noise.onchange = ()=> { flatNoiseGain.gain.value=noise.value}
+  DecayGain.connect(context.destination)  
   Pluck.onclick = function() { 
+    console.log(decay.value)
+    let width1 = width.value*400 
+    aDelay.delayTime.value = 1 / (440 * Math.pow (2, (note.value - 69) / 12)) - 128 / context.sampleRate
+    DecayGain.gain.value=decay.value
+    //DelayNode adds 128 samples to delay time, so highest pitch around E4. Compensate to set frequency properly.
+    LPFilter1.parameters.get('frequency').value = cutoff.value
+    OscGain.gain.value=sine.value 
+    PhasorGain.gain.value=sawtooth.value
+    flatNoiseGain.gain.value=noise.value
     var ramp=0,now = context.currentTime
     constantNode.offset.cancelScheduledValues(now)
     constantNode.offset.linearRampToValueAtTime(1, now + ramp*0.001)
@@ -43,7 +43,6 @@ context.audioWorklet.addModule('Worklets.js').then(() => {
   }
 }) 
 
-
 function multiplySignals(inputA, inputB, context) {
   this.context = context;
   this.multGain = new GainNode(this.context,{gain:0});
@@ -51,16 +50,4 @@ function multiplySignals(inputA, inputB, context) {
   inputB.connect(this.multGain.gain);
   this.connect = function(destination) { this.multGain.connect(destination); };
   this.disconnect = function(destination) { this.multGain.disconnect(destination); };
-}
-function multiplySigVal(inputA, val, context) {
-  this.context = context;
-  this.val = val;
-  this.multGain = new GainNode(this.context,{gain:0});
-  this.csNode = new ConstantSourceNode(this.context,{offset:this.val});
-  this.csNode.start();
-  inputA.connect(this.multGain);
-  this.csNode.connect(this.multGain.gain);
-  this.connect = function(destination) { this.multGain.connect(destination); };
-  this.disconnect = function(destination) { this.multGain.disconnect(destination); };
-  this.updateOffsetValue = function(value) { this.csNode.offset.value = value; }
 }

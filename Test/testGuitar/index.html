@@ -1,0 +1,73 @@
+<input type='range' min=0 max=1 value=0.01 step=0.01 id='pickPosition'>
+<input type='number' min=0 max=1 value=0.01 step=0.01 id='pickPositionNumber'>
+Pick position <br>
+<input type='range' min=0 max=0.9 value=0.01 step=0.01 id='pickDirection'>
+<input type='number' min=0 max=0.9 value=0.01 step=0.01 id='pickDirectionNumber'>
+Pick direction<br>
+<input type='range' min=0.5 max=10 value=2.5 step=0.05 id='decay'>
+<input type='number' min=0.5 max=10 value=2.5 step=0.05 id='decayNumber'>
+Decay<br>
+<input type='range' min=0 max=1 value=1 step=0.01 id='brightness'>
+<input type='number' min=0 max=1 value=1 step=0.01 id='brightnessNumber'>
+Brightness<br>
+<input type='range' min=0.1 max=1 value=1 step=0.01 id='dynamicLevel'>
+<input type='number' min=0.1 max=1 value=1 step=0.01 id='dynamicLevelNumber'>
+Dynamic level<br>
+<input type='range' min=0 max=1 value=0.0 step=0.01 id='feedback'>
+<input type='number' min=0 max=1 value=0.0 step=0.01 id='feedbackNumber'>
+Feedback<br><br>
+<select id='setting'>
+  <option>Default</option>
+  <option>Muted guitar</option>
+  <option>Nylon strings</option>
+  <option>Distorted guitar</option>
+  <option>Ambient texture</option>
+</select> Setting<br>
+<input type='button' value='pluck' id='Pluck'>
+<script>
+  pickPosition.oninput = () => pickPositionNumber.value = pickPosition.value
+  pickPositionNumber.oninput = () => pickPosition.value = pickPositionNumber.value
+  pickDirection.oninput = () => pickDirectionNumber.value = pickDirection.value
+  pickDirectionNumber.oninput = () => pickDirection.value = pickDirectionNumber.value
+  decay.oninput = () => decayNumber.value = decay.value
+  decayNumber.oninput = () => decay.value = decayNumber.value
+  brightness.oninput = () => brightnessNumber.value = brightness.value
+  brightnessNumber.oninput = () => brightness.value = brightnessNumber.value
+  dynamicLevel.oninput = () => dynamicLevelNumber.value = dynamicLevel.value
+  dynamicLevelNumber.oninput = () => dynamicLevel.value = dynamicLevelNumber.value
+  feedback.oninput = () => feedbackNumber.value = feedback.value
+  feedbackNumber.oninput = () => feedback.value = feedbackNumber.value
+  setting.onchange=()=> {
+    if (setting.selectedIn0) { // C2 - dampened piano
+      pickPosition.value=0.2,
+      pickDirection.value=0.2,
+      decay.value=4,
+      brightness.value=0.2,
+      dynamicLevel.value=0.5,
+      feedback.value=0.5
+    }
+    if (setting.selectedIn1) { // C2 - dampened piano
+      pickPosition.value=0.62,
+      pickDirection.value=0.62,
+      decay.value=6,
+      brightness.value=0.6,
+      dynamicLevel.value=0.6,
+      feedback.value=0.6
+    }
+    pickPositionNumber.value=width.value
+    pickDirectionNumber.value=decay.value
+    decayNumber.value=decay.value
+    brightnessNumber.value=note.value
+    dynamicLevelNumber.value=dynamicLevel.value
+    feedbackNumber.value=feedback.value
+    noiseNumber.value=noise.value    
+    console.log(pickPosition.value)
+    console.log(pickDirection.value)
+    console.log(decay.value)
+    console.log(brightness.value)
+    console.log(dynamicLevel.value)
+    console.log(feedback.value)
+    console.log(setting.selectedIndex)
+  }
+</script>
+<script src='guitar.js'></script>

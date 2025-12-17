@@ -1,17 +1,5 @@
-<select id='Source'>
-  <option value='a'>Default</option>
-  <option value='b'>C2 - damped piano</option>
-  <option value='c'>E2 - damped piano</option>
-  <option value='c'>G2 - damped piano</option>
-  <option value='a'>C3 - regular piano</option>
-  <option value='a'>A - damped piano</option>
-  <option value='a'>A - damped piano</option>
-  <option value='a'>A</option>
-  <option value='a'>A</option>
-</select>
-Source<br>
-<input type='range' min=0 max=1 value=0.2 step=0.02 id='width'>
-<input type='number' min=0 max=1 value=0.2 step=0.02 id='widthNumber'>
+<input type='range' min=0 max=1 value=0.02 step=0.02 id='width'>
+<input type='number' min=0 max=1 value=0.02 step=0.02 id='widthNumber'>
 width<br>
 <input type='range' min=0.8 max=0.9999 value=0.97 step=0.001 id='decay'>
 <input type='number' min=0.8 max=0.9999 value=0.97 step=0.001 id='decayNumber'>
@@ -22,18 +10,35 @@ cutoff frequency (Hz)<br>
 <input type='range' min=0 max=64 value=41 step=1 id='note'>
 <input type='number' min=0 max=64 value=41 step=1 id='noteNumber'>
 note<br>
-<input type='range' min=0 max=1 value=0.5 step=0.1 id='sine'>
-<input type='number' min=0 max=1 value=0.5 step=0.1 id='sineNumber'>
+<input type='range' min=0 max=1 value=0.5 step=0.01 id='sine'>
+<input type='number' min=0 max=1 value=0.5 step=0.01 id='sineNumber'>
 sine<br>
-<input type='range' min=0 max=1 value=0.5 step=0.1 id='sawtooth'>
-<input type='number' min=0 max=1 value=0.5 step=0.1 id='sawtoothNumber'>
+<input type='range' min=0 max=1 value=0.5 step=0.01 id='sawtooth'>
+<input type='number' min=0 max=1 value=0.5 step=0.01 id='sawtoothNumber'>
 sawtooth<br>
-<input type='range' min=0 max=1 value=0.5 step=0.1 id='noise'>
-<input type='number' min=0 max=1 value=0.5 step=0.1 id='noiseNumber'>
-noise<br>
-<p></p>
+<input type='range' min=0 max=1 value=0.5 step=0.01 id='noise'>
+<input type='number' min=0 max=1 value=0.5 step=0.01 id='noiseNumber'>
+noise<br><br>
+<select id='setting'>
+  <option>Default</option>
+  <option>C2 - damped piano</option>
+  <option>E2 - damped piano</option>
+  <option>G2 - damped piano</option>
+  <option>B2 - damped piano</option>
+  <option>C3 - regular piano</option>
+  <option>E3 - regular piano</option>
+  <option>G3 - regular piano</option>
+  <option>Aggresively bowed cello-Bb2</option>
+  <option>Aggresively bowed cello-F4</option>
+  <option>Tension/thrilller C1-short</option>
+  <option>Tension/thrilller C1-long</option>
+  <option>Knocking on glass</option>
+  <option>Plucking string with glass</option>
+  <option>Drum&Bass G1</option>
+  <option>Deep impact vibrations</option>
+  <option>Scraped guitar string</option>
+</select> Setting<br>
 <input type='button' value='pluck' id='Pluck'>
-<input type='button' value='show' id='Show'>
 <script>
   width.oninput = () => widthNumber.value = width.value
   widthNumber.oninput = () => width.value = widthNumber.value
@@ -47,10 +52,287 @@ noise<br>
   sineNumber.oninput = () => sine.value = sineNumber.value
   sawtooth.oninput = () => sawtoothNumber.value = sawtooth.value
   sawtoothNumber.oninput = () => sawtooth.value = sawtoothNumber.value
-  noise.oninput = () => noiseNumber.value = noise.value
+  noise.oninput = () => { console.log('noise oninput'); noiseNumber.value = noise.value }
+  noise.oninput = () => { console.log('noise onchange'); noiseNumber.value = noise.value }
   noiseNumber.oninput = () => noise.value = noiseNumber.value
-  Show.onclick=()=> {
-    console.log(Source.value)
+  setting.onchange=()=> {
+    if (setting.selectedIn0) { // C2 - dampened piano
+      width.value=0.02,
+      decay.value=0.97,
+      cutoff.value=4000,
+      note.value=41,
+      sine.value=0.5,
+      sawtooth.value=0.5,
+      noise.value=0.5
+    }
+    if (setting.selectedIn1) { // C2 - dampened piano
+      width.value=0.02,
+      decay.value=0.95,
+      cutoff.value=2000,
+      note.value=36,
+      sine.value=0,
+      sawtooth.value=0,
+      noise.value=0.99
+    }
+    if (setting.selectedIn2) { // E2 - dampened piano
+        width.value=0.02,
+        decay.value=0.95,
+        cutoff.value=2000,
+        note.value=40,
+        sine.value=0,
+        sawtooth.value=0,
+        noise.value=0.99
+    }
+    if (setting.selectedIn3) { // G2 - dampened piano
+        width.value=0.02,
+        decay.value=0.95,
+        cutoff.value=2000,
+        note.value=43,
+        sine.value=0,
+        sawtooth.value=0,
+        noise.value=0.99
+    }
+    if (setting.selectedIndex==4) { // B2 - dampened piano
+        width.value=0.02,
+        decay.value=0.95,
+        cutoff.value=2000,
+        note.value=47,
+        sine.value=0,
+        sawtooth.value=0,
+        noise.value=0.99
+    }
+    if (setting.selectedIndex==5) { // C3 - regular piano
+        width.value=0.02,
+        decay.value=0.99,
+        cutoff.value=4000,
+        note.value=48,
+        sine.value=0,
+        sawtooth.value=0,
+        noise.value=0.99
+    }
+    if (setting.selectedIndex==6) { // E3 - regular piano
+        width.value=0.02,
+        decay.value=0.99,
+        cutoff.value=4000,
+        note.value=52,
+        sine.value=0,
+        sawtooth.value=0,
+        noise.value=0.99
+    }
+    if (setting.selectedIndex==7) { // G3 - regular piano
+        width.value=0.02,
+        decay.value=0.99,
+        cutoff.value=4000,
+        note.value=55,
+        sine.value=0,
+        sawtooth.value=0,
+        noise.value=0.99
+    }
+    if (setting.selectedIndex==8) { // Aggresively bowed cello-Bb2
+        width.value=0.10,
+        decay.value=0.83,
+        cutoff.value=1000,
+        note.value=26,
+        sine.value=0.2,
+        sawtooth.value=0,
+        noise.value=0.99
+    }
+    if (setting.selectedIndex==9) { // Aggresively bowed cello-F4
+        width.value=0.10,
+        decay.value=0.93,
+        cutoff.value=2000,
+        note.value=45,
+        sine.value=0.2,
+        sawtooth.value=0,
+        noise.value=0.99
+    }
+    if (setting.selectedIndex==10) { // Tension/thrilller C1-short
+        width.value=0.02,
+        decay.value=0.99,
+        cutoff.value=1000,
+        note.value=24,
+        sine.value=0,
+        sawtooth.value=1,
+        noise.value=0
+    }
+    /* presetObject["RTSFXdelay"] = {
+        feedback.value=-20,
+        bypass.value=1,
+        dry.value=1,
+        delay.value=200,
+        cutOff.value=1800,
+        wet.value=0.4
+    }
+    presetObject["RTSFXconvReverb"] = {
+        bypass.value=1,
+        dry.value=0.6,
+        highCut.value=20000,
+        level.value=1,
+        lowCut.value=20,
+        type.value=5,
+        wet.value=1
+    } 
+    presetObject["RTSFXoverdrive"] = {
+        drive.value=8.5,
+        bypass.value=1,
+        tone.value=1,
+        knee.value=0.67,
+        bias.value=0.64,
+        level.value=0
+    } */
+    if (setting.selectedIndex==11) { // Tension/thrilller C1-long
+        width.value=0.04,
+        decay.value=0.990,
+        cutoff.value=7000,
+        note.value=24,
+        sine.value=0,
+        sawtooth.value=1,
+        noise.value=0
+    }
+    /* presetObject["RTSFXdelay"] = {
+        feedback.value=-20,
+        bypass.value=1,
+        dry.value=1,
+        delay.value=200,
+        cutOff.value=1800,
+        wet.value=0.4
+    }
+    presetObject["RTSFXconvReverb"] = {
+        bypass.value=1,
+        dry.value=0.6,
+        highCut.value=20000,
+        level.value=1,
+        lowCut.value=20,
+        type.value=5,
+        wet.value=1
+    } 
+    presetObject["RTSFXoverdrive"] = {
+        drive.value=8.5,
+        bypass.value=1,
+        tone.value=1,
+        knee.value=0.67,
+        bias.value=0.64,
+        level.value=0
+    } */
+    if (setting.selectedIndex==12) { // Knocking on glass
+        width.value=0.01,
+        decay.value=0.9,
+        cutoff.value=200,
+        note.value=64,
+        sine.value=1,
+        sawtooth.value=0,
+        noise.value=0
+    }
+    /* presetObject["RTSFXconvReverb"] = {
+        bypass.value=1,
+        dry.value=0.6,
+        highCut.value=20000,
+        level.value=1,
+        lowCut.value=20,
+        type.value=5,
+        wet.value=1
+    } //Reverb values
+    presetObject["RTSFXdelay"] = {
+        feedback.value=0,
+        bypass.value=1,
+        dry.value=1,
+        delay.value=0,
+        cutOff.value=1800,
+        wet.value=0
+    } */
+    if (setting.selectedIndex==13) { // Plucking string with glass
+        width.value=0.02,
+        decay.value=0.97,
+        cutoff.value=9500,
+        note.value=54,
+        sine.value=0.7,
+        sawtooth.value=0.2,
+        noise.value=0
+    }
+    /* presetObject["RTSFXoverdrive"] = {
+        drive.value=8.5,
+        bypass.value=1,
+        tone.value=1,
+        knee.value=0.67,
+        bias.value=0.64,
+        level.value=0
+    }
+    presetObject["RTSFXdelay"] = {
+        feedback.value=0,
+        bypass.value=1,
+        dry.value=1,
+        delay.value=0,
+        cutOff.value=1800,
+        wet.value=0
+    } */
+    if (setting.selectedIndex==14) { // Drum&Bass G1
+        width.value=0.01,
+        decay.value=0.85,
+        cutoff.value=7000,
+        note.value=31,
+        sine.value=0.3,
+        sawtooth.value=0.7,
+        noise.value=0.2
+    }
+    /* presetObject["RTSFXconvReverb"] = {
+        bypass.value=1,
+        dry.value=0.6,
+        highCut.value=20000,
+        level.value=1,
+        lowCut.value=20,
+        type.value=5,
+        wet.value=1
+    } //Reverb values
+    presetObject["RTSFXoverdrive"] = {
+        drive.value=8.5,
+        bypass.value=1,
+        tone.value=1,
+        knee.value=0.67,
+        bias.value=0.64,
+        level.value=0
+    }
+    presetObject["RTSFXdelay"] = {
+        feedback.value=0,
+        bypass.value=1,
+        dry.value=1,
+        delay.value=0,
+        cutOff.value=1800,
+        wet.value=0
+    } */
+    if (setting.selectedIndex==15) { // Deep impact vibrations
+        width.value=0.02,
+        decay.value=0.94,
+        cutoff.value=2435,
+        note.value=27,
+        sine.value=0,
+        sawtooth.value=0.77,
+        noise.value=0
+    }
+    /* presetObject["RTSFXdelay"] = {
+        bypass.value=1,
+        feedback.value=-3,
+        wet.value=1,
+        dry.value=1,
+        delay.value=320,
+        cutOff.value=1800
+    } */
+    if (setting.selectedIndex==16) { // Scraped guitar string
+        width.value=0.02,
+        decay.value=0.97,
+        cutoff.value=4000,
+        note.value=51,
+        sine.value=0.5,
+        sawtooth.value=0.5,
+        noise.value=0
+    }
+    widthNumber.value=width.value
+    decayNumber.value=decay.value
+    cutoffNumber.value=cutoff.value
+    noteNumber.value=note.value
+    sineNumber.value=sine.value
+    sawtoothNumber.value=sawtooth.value
+    noiseNumber.value=noise.value    
+    console.log(setting.value)
     console.log(width.value)
     console.log(decay.value)
     console.log(cutoff.value)
@@ -58,26 +340,7 @@ noise<br>
     console.log(sine.value)
     console.log(sawtooth.value)
     console.log(noise.value)
-    console.log(Source.selectedIndex)
-    if (Source.value == 'a') {
-      sine.value=0.5
-      sawtooth.value=0.5
-      noise.value=0.5
-      width.value=0.02
-      decay.value=0.97
-      cutoff.value=4000
-      note.value=41
-    }
-    
-    if (Source.value == 'b') {
-      sine.value=0
-      sawtooth.value=0
-      noise.value=0.99
-      width.value=0.02
-      decay.value=0.95
-      cutoff.value=5700
-      note.value=36
-    }
+    console.log(setting.selectedIndex)
   }
 </script>
 <script src='PluckedString.js'></script>

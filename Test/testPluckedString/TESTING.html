@@ -1,0 +1,20 @@
+<select id='Source'>
+  <option>A</option>
+  <option>B</option>
+</select>
+<input type='range' min=0 max=1 value=0.5 step=0.1 id='sine'>
+<input type='number' min=0 max=1 value=0.5 step=0.1 id='sineNumber'>
+<input type='button' value='show' id='Show'>
+<script>
+  sine.oninput = () => console.log('a')
+  sineNumber.value.oninput = () => console.log('b')
+  sine.onchange = () => console.log('c')
+  sineNumber.value.onchange = () => console.log('d')
+  Source.onchange=()=> {
+    console.log(Source.value)
+    console.log(sine.value)
+    console.log(Source.selectedIndex)
+    if (Source.selectedIndex == 0) { sine.value='0.8'; sineNumber.value = sine.value }
+    if (Source.selectedIndex == 1) { sine.value=0.2; sine.dispatchEvent(new Event('change')) }
+  }
+</script>
