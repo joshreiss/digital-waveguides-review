@@ -1,38 +1,12 @@
+
+
 <b>Digital Waveguides Review - Code examples</b>
 
 <ul>
-    <li><a href="01_CombFilter/combFilter.html">Introducing Delay Lines- the comb filter</a></li>
-    <li><a href="02_FeedbackDelay/feedbackDelay.html">Feedback delay</a> based on routing the output of the delay node back to the input</li>
-    <li><a href="03_KarplusStrongV1/KarplusStrong.html">Simplified Karplus Strong v1</a></li>
-    <li><a href="04_KarplusStrongV2/KarplusStrongV2.html">Simplified Karplus Strong v2- An audio worklet version</a></li>
-    <li><a href="05_IdealPluckedString/index.html">Ideal plucked string</a></li>
-    <li><a href="06_NegativeFeedback/index.html">Negative feedback</a></li>
-    <li><a href="07_DWfilters/DWfilters.html">Digital Waveguide Filters</a></li>
-    <li><a href="08_Nonlinearities/Nonlinearities.html">Nonlinearities in the feedback filter</a></li>
-    <li><a href="09_RemovingDC/index.html">Removing DC offset</a></li>
-    <li><a href="10_PitchControl/">Controlling the Pitch</a></li>
-    <li><a href="11_NoteTransitions/index.html">Note transitions</a></li>
-    <li><a href="12_Implementations/index.html">Basic waveguide implementations</a></li>
-    <li><a href="13_FractionalDelay/">Fractional delay</a></li>
-    <li>Animal vocalisation example</li>
-    <li>Flute example</li>
-    <li>Reverb example</li>
+    <li><a href="OsarTutorial">Osar Tutorial</a> - see https://www.osar.fr/notes/waveguides/</li>
+    <li><a href="GuitarAmidFish">GuitarAmidFish</a> - see https://amid.fish/javascript-karplus-strong</li>
+    <li><a href="testPluckedString/">Test Plucked String</a></li>
+    <li><a href="testGuitar/">Test Guitar</a></li>
 </ul>
 
-Some code examples correspond to examples from Chapters 10 and 19 of the book 'Working with the Web Audio API'.
 
-Feel free to contact me at joshua.reiss@qmul.ac.uk
-
-<h2>Animal vocalisation example</h2>
-Suppose that the looped delay line provides an infinite number of harmonics of its base frequency, some having more weight than others. 
-Without any filters, the weights of harmonics are based on their harmonic distance: the simplest fractions, such as the fundamental, are the heaviest. This weight determines which harmonics are more likely to resonate, with the lighter ones generally being softer or absent (this is probabilistic when the exciter is based on noise). By adding filters into the loop, we shape the spectrum of those weights. When crossfading multiple delays in the loop, we intersect the spectra of their weighted harmonics.
-However, complex filtering in the loop means the final pitch of the model will be much harder to control. 
-One practical solution is to play along with it, since these pitch fluctuations can be satisfyingly organic, especially when the context is not musical.<br>
-This approach is used here to create animal vocalisations. There are two parallel bandpass filters in the loop, one of which has three times the frequency of the other.
-To Do!<br>
-What animal is this?
-
-<h2>Flute example</h2>
-The following example simulates the higher registers of a flute by means of a bandpass crossfaded with a lowpass in the loop, making the pitch harder to predict. Despite this, an attempt is made to keep the final pitch in tune with the original intended pitch. We use the same formula introduced in the above section Controlling the Pitch, with one modification: fcfc is now the sum of the frequencies of both filters.
-To Do!<br>
-Flute model with exaggerated higher registers.
