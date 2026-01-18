@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faust Clarinet - Web Audio Implementation</title>
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .info {
+      background-color: #e8f4f8;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 30px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .panels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    
+    .panel {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      min-width: 260px;
+      flex: 1;
+    }
+    
+    .panel h2 {
+      margin-top: 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+      font-size: 16px;
+      color: #444;
+    }
+    
+    .control-group {
+      margin-bottom: 20px;
+    }
+    
+    .control-group h3 {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    
+    .control {
+      margin-bottom: 12px;
+    }
+    
+    .control label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+      color: #555;
+    }
+    
+    .control .slider-container {
+      display: flex;
+      align-items: center;
+    }
+    
+    .control input[type="range"] {
+      flex: 1;
+      margin-right: 10px;
+    }
+    
+    .control .value {
+      width: 40px;
+      text-align: right;
+      font-size: 12px;
+      color: #777;
+    }
+    
+    .keyboard {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+      user-select: none;
+    }
+    
+    .key {
+      position: relative;
+      width: 40px;
+      height: 150px;
+      background: white;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+    
+    .key.black {
+      background: #333;
+      width: 30px;
+      height: 90px;
+      margin: 0 -15px;
+      z-index: 1;
+    }
+    
+    .key.active {
+      background: #e0e7ff;
+    }
+    
+    .key.black.active {
+      background: #666;
+    }
+    
+    .key-label {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #777;
+    }
+    
+    .key.black .key-label {
+      color: #fff;
+    }
+    
+    button {
+      background-color: #4C8BF5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 20px auto;
+      display: block;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: #3a77de;
+    }
+    
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #666;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Faust Clarinet - Web Audio Implementation</h1>
+  
+  <div class="info">
+    <p>This is a Web Audio API implementation based on the Faust Clarinet physical model by Romain Michon.
+    It uses a digital waveguide model with a non-linear reed function, feedback loop, and stereo spatialization.
+    This implementation follows the parameter organization and UI design of the original Faust DSP code.</p>
+    
+    <p><strong>Click the "Start Clarinet" button below, then play using your mouse or computer keyboard.</strong></p>
+  </div>
+  
+  <button id="startButton">Start Clarinet</button>
+  
+  <div class="keyboard" id="keyboard"></div>
+  
+  <div class="panels">
+    <!-- Basic Parameters Panel -->
+    <div class="panel" id="basicParameters">
+      <h2>Basic Parameters</h2>
+      <div class="control">
+        <label for="freq">Frequency (Hz)</label>
+        <div class="slider-container">
+          <input type="range" id="freq" min="20" max="5000" step="1" value="440">
+          <span class="value" id="freqValue">440 Hz</span>
+        </div>
+      </div>
+      <div class="control">
+        <label for="gain">Gain</label>
+        <div class="slider-container">
+          <input type="range" id="gain" min="0" max="1" step="0.01" value="1">
+          <span class="value" id="gainValue">1.00</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Physical Parameters Panel -->
+    <div class="panel">
+      <h2>Physical and Nonlinearity</h2>
+      <div class="control-group">
+        <h3>Physical Parameters</h3>
+        <div class="control">
+          <label for="reedStiffness">Reed Stiffness</label>
+          <div class="slider-container">
+            <input type="range" id="reedStiffness" min="0" max="1" step="0.01" value="0.5">
+            <span class="value" id="reedStiffnessValue">0.50</span>
+          </div>
+        </div>
+        <div class="control">
+          <label for="noiseGain">Noise Gain</label>
+          <div class="slider-container">
+            <input type="range" id="noiseGain" min="0" max="1" step="0.01" value="0">
+            <span class="value" id="noiseGainValue">0.00</span>
+          </div>
+        </div>
+        <div class="control">
+          <label for="pressure">Breath Pressure</label>
+          <div class="slider-container">
+            <input type="range" id="pressure" min="0" max="1" step="0.01" value="1">
+            <span class="value" id="pressureValue">1.00</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="control-group">
+        <h3>Nonlinear Filter Parameters</h3>
+        <div class="control">
+          <label for="nonLinearity">Nonlinearity</label>
+          <div class="slider-container">
+            <input type="range" id="nonLinearity" min="0" max="1" step="0.01" value="0">
+            <span class="value" id="nonLinearityValue">0.00</span>
+          </div>
+        </div>
+        <div class="control">
+          <label for="nonLinAttack">Nonlinearity Attack (s)</label>
+          <div class="slider-container">
+            <input type="range" id="nonLinAttack" min="0" max="2" step="0.01" value="0.1">
+            <span class="value" id="nonLinAttackValue">0.10</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Envelopes and Vibrato Panel -->
+    <div class="panel">
+      <h2>Envelopes and Vibrato</h2>
+      <div class="control-group">
+        <h3>Vibrato Parameters</h3>
+        <div class="control">
+          <label for="vibratoFreq">Vibrato Frequency (Hz)</label>
+          <div class="slider-container">
+            <input type="range" id="vibratoFreq" min="1" max="15" step="0.1" value="5">
+            <span class="value" id="vibratoFreqValue">5.0</span>
+          </div>
+        </div>
+        <div class="control">
+          <label for="vibratoGain">Vibrato Gain</label>
+          <div class="slider-container">
+            <input type="range" id="vibratoGain" min="0" max="1" step="0.01" value="0.1">
+            <span class="value" id="vibratoGainValue">0.10</span>
+          </div>
+        </div>
+        <div class="control">
+          <label for="vibratoAttack">Vibrato Attack (s)</label>
+          <div class="slider-container">
+            <input type="range" id="vibratoAttack" min="0" max="2" step="0.01" value="0.5">
+            <span class="value" id="vibratoAttackValue">0.50</span>
+          </div>
+        </div>
+        <div class="control">
+          <label for="vibratoRelease">Vibrato Release (s)</label>
+          <div class="slider-container">
+            <input type="range" id="vibratoRelease" min="0" max="2" step="0.01" value="0.01">
+            <span class="value" id="vibratoReleaseValue">0.01</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="control-group">
+        <h3>Envelope Parameters</h3>
+        <div class="control">
+          <label for="envelopeAttack">Envelope Attack (s)</label>
+          <div class="slider-container">
+            <input type="range" id="envelopeAttack" min="0" max="2" step="0.01" value="0.01">
+            <span class="value" id="envelopeAttackValue">0.01</span>
+          </div>
+        </div>
+        <div class="control">
+          <label for="envelopeDecay">Envelope Decay (s)</label>
+          <div class="slider-container">
+            <input type="range" id="envelopeDecay" min="0" max="2" step="0.01" value="0.05">
+            <span class="value" id="envelopeDecayValue">0.05</span>
+          </div>
+        </div>
+        <div class="control">
+          <label for="envelopeRelease">Envelope Release (s)</label>
+          <div class="slider-container">
+            <input type="range" id="envelopeRelease" min="0" max="2" step="0.01" value="0.1">
+            <span class="value" id="envelopeReleaseValue">0.10</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="panel">
+    <h2>Reverb</h2>
+    <div class="control">
+      <label for="reverbMix">Reverb Mix</label>
+      <div class="slider-container">
+        <input type="range" id="reverbMix" min="0" max="1" step="0.01" value="0.3">
+        <span class="value" id="reverbMixValue">0.30</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>Based on the Faust Clarinet physical model by Romain Michon. Original DSP code licensed under STK-4.3 (MIT style license).</p>
+  </div>
+  
+  <script src="faust-clarinet-web.js"></script>
+  <script>
+    // Piano keyboard setup
+    const keyboardDiv = document.getElementById('keyboard');
+    const whiteKeyNames = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+    const blackKeyNames = ['C#', 'D#', '', 'F#', 'G#', 'A#', ''];
+    
+    // Map from piano keys to frequencies
+    function getFrequency(noteName, octave) {
+      const notes = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 
+                     'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11};
+      const keyNumber = notes[noteName] + (octave * 12);
+      return 440 * Math.pow(2, (keyNumber - 57) / 12);
+    }
+    
+    // Create piano keyboard (2 octaves)
+    function createKeyboard() {
+      // Keyboard mapping to computer keyboard
+      const keyboardMap = {
+        'z': {note: 'C', octave: 4},
+        's': {note: 'C#', octave: 4},
+        'x': {note: 'D', octave: 4},
+        'd': {note: 'D#', octave: 4},
+        'c': {note: 'E', octave: 4},
+        'v': {note: 'F', octave: 4},
+        'g': {note: 'F#', octave: 4},
+        'b': {note: 'G', octave: 4},
+        'h': {note: 'G#', octave: 4},
+        'n': {note: 'A', octave: 4},
+        'j': {note: 'A#', octave: 4},
+        'm': {note: 'B', octave: 4},
+        ',': {note: 'C', octave: 5},
+        'l': {note: 'C#', octave: 5},
+        '.': {note: 'D', octave: 5},
+        ';': {note: 'D#', octave: 5},
+        '/': {note: 'E', octave: 5}
+      };
+      
+      const keyElements = {};
+      
+      // Create white keys first
+      for (let octave = 4; octave <= 5; octave++) {
+        for (let i = 0; i < whiteKeyNames.length; i++) {
+          if (octave === 5 && i > 4) continue; // Only add up to E5
+          
+          const keyName = whiteKeyNames[i];
+          const key = document.createElement('div');
+          key.className = 'key';
+          
+          const keyLabel = document.createElement('span');
+          keyLabel.className = 'key-label';
+          keyLabel.textContent = keyName + octave;
+          key.appendChild(keyLabel);
+          
+          keyboardDiv.appendChild(key);
+          keyElements[keyName + octave] = key;
+          
+          const freq = getFrequency(keyName, octave);
+          
+          // Add mouse event listeners
+          key.addEventListener('mousedown', function() {
+            playNote(freq);
+            this.classList.add('active');
+          });
+          
+          key.addEventListener('mouseup', function() {
+            stopNote();
+            this.classList.remove('active');
+          });
+          
+          key.addEventListener('mouseleave', function() {
+            stopNote();
+            this.classList.remove('active');
+          });
+        }
+      }
+      
+      // Create black keys on top
+      let blackKeyIndex = 0;
+      for (let octave = 4; octave <= 5; octave++) {
+        for (let i = 0; i < blackKeyNames.length; i++) {
+          if (octave === 5 && i > 3) continue; // Only add up to D#5
+          
+          const keyName = blackKeyNames[i];
+          if (keyName === '') continue; // Skip positions without black keys
+          
+          const key = document.createElement('div');
+          key.className = 'key black';
+          
+          const keyLabel = document.createElement('span');
+          keyLabel.className = 'key-label';
+          keyLabel.textContent = keyName + octave;
+          key.appendChild(keyLabel);
+          
+          // Insert black key at the right position
+          const insertAfterIndex = (octave - 4) * 7 + i;
+          keyboardDiv.insertBefore(key, keyboardDiv.children[insertAfterIndex + blackKeyIndex + 1]);
+          blackKeyIndex++;
+          
+          keyElements[keyName + octave] = key;
+          
+          const freq = getFrequency(keyName, octave);
+          
+          // Add mouse event listeners
+          key.addEventListener('mousedown', function() {
+            playNote(freq);
+            this.classList.add('active');
+          });
+          
+          key.addEventListener('mouseup', function() {
+            stopNote();
+            this.classList.remove('active');
+          });
+          
+          key.addEventListener('mouseleave', function() {
+            stopNote();
+            this.classList.remove('active');
+          });
+        }
+      }
+      
+      // Computer keyboard control
+      document.addEventListener('keydown', function(event) {
+        const key = event.key.toLowerCase();
+        if (keyboardMap[key] && !event.repeat) {
+          const noteInfo = keyboardMap[key];
+          const noteName = noteInfo.note + noteInfo.octave;
+          const freq = getFrequency(noteInfo.note, noteInfo.octave);
+          
+          playNote(freq);
+          if (keyElements[noteName]) {
+            keyElements[noteName].classList.add('active');
+          }
+        }
+      });
+      
+      document.addEventListener('keyup', function(event) {
+        const key = event.key.toLowerCase();
+        if (keyboardMap[key]) {
+          const noteInfo = keyboardMap[key];
+          const noteName = noteInfo.note + noteInfo.octave;
+          
+          stopNote();
+          if (keyElements[noteName]) {
+            keyElements[noteName].classList.remove('active');
+          }
+        }
+      });
+    }
+    
+    // Initialize Web Audio components on start button click
+    let clarinet, reverb, audioContext;
+    const startButton = document.getElementById('startButton');
+    
+    startButton.addEventListener('click', async function() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Create the clarinet model
+        clarinet = new ClarinetModel(audioContext);
+        
+        // Create reverb effect
+        reverb = new SimpleReverb(audioContext);
+        
+        // Connect the audio path
+        clarinet.connect(reverb.input);
+        reverb.connect(audioContext.destination);
+        
+        // Create keyboard
+        createKeyboard();
+        
+        // Set up all sliders to control parameters
+        setupSliders();
+        
+        startButton.textContent = 'Clarinet is running';
+        startButton.disabled = true;
+      }
+    });
+    
+    // Play and stop notes
+    function playNote(frequency) {
+      if (clarinet) {
+        clarinet.startNote(frequency);
+        // Update frequency display
+        document.getElementById('freq').value = Math.round(frequency);
+        document.getElementById('freqValue').textContent = Math.round(frequency) + ' Hz';
+      }
+    }
+    
+    function stopNote() {
+      if (clarinet) {
+        clarinet.stopNote();
+      }
+    }
+    
+    // Set up all sliders
+    function setupSliders() {
+      // Helper function to set up sliders
+      function setupSlider(id, setter, formatter = (v) => v.toFixed(2)) {
+        const slider = document.getElementById(id);
+        const valueDisplay = document.getElementById(id + 'Value');
+        
+        slider.addEventListener('input', function() {
+          const value = parseFloat(this.value);
+          valueDisplay.textContent = formatter(value);
+          if (clarinet && setter) {
+            setter(value);
+          }
+        });
+      }
+      
+      // Basic Parameters
+      setupSlider('gain', (val) => clarinet.setGain(val));
+      setupSlider('freq', (val) => clarinet.setFrequency(val), (v) => Math.round(v) + ' Hz');
+      
+      // Physical Parameters
+      setupSlider('reedStiffness', (val) => clarinet.setReedStiffness(val));
+      setupSlider('noiseGain', (val) => clarinet.setNoiseGain(val));
+      setupSlider('pressure', (val) => clarinet.setPressure(val));
+      
+      // Nonlinear Parameters
+      setupSlider('nonLinearity', (val) => clarinet.setNonLinearity(val));
+      setupSlider('nonLinAttack', (val) => clarinet.setNonLinAttack(val), (v) => v.toFixed(2) + ' s');
+      
+      // Vibrato Parameters
+      setupSlider('vibratoFreq', (val) => clarinet.setVibratoFreq(val), (v) => v.toFixed(1) + ' Hz');
+      setupSlider('vibratoGain', (val) => clarinet.setVibratoGain(val));
+      setupSlider('vibratoAttack', (val) => clarinet.setVibratoAttack(val), (v) => v.toFixed(2) + ' s');
+      setupSlider('vibratoRelease', (val) => clarinet.setVibratoRelease(val), (v) => v.toFixed(2) + ' s');
+      
+      // Envelope Parameters
+      setupSlider('envelopeAttack', (val) => clarinet.setEnvelopeAttack(val), (v) => v.toFixed(2) + ' s');
+      setupSlider('envelopeDecay', (val) => clarinet.setEnvelopeDecay(val), (v) => v.toFixed(2) + ' s');
+      setupSlider('envelopeRelease', (val) => clarinet.setEnvelopeRelease(val), (v) => v.toFixed(2) + ' s');
+      
+      // Reverb
+      setupSlider('reverbMix', (val) => reverb.setMix(val));
+    }
+  </script>
+</body>
+</html>

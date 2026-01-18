@@ -1,3 +1,12 @@
+In this example, a digital waveguide is used to simulate a guitar. The following parameters directly control the digital waveguide, which is implemented as an audio worklet.
+<ul>
+  <li>Pick position - </li>
+  <li>Pick direction - </li>
+  <li>Decay - </li>
+  <li>Brightness - </li>
+  <li>Dynamic level - </li>
+  <li>Feedback - </li>
+</ul>
 <input type='range' min=0 max=1 value=0.01 step=0.01 id='pickPosition'>
 <input type='number' min=0 max=1 value=0.01 step=0.01 id='pickPositionNumber'>
 Pick position <br>
@@ -23,44 +32,68 @@ Feedback<br><br>
   <option>Distorted guitar</option>
   <option>Ambient texture</option>
 </select> Setting<br>
-<input type='button' value='pluck' id='Pluck'>
+Use the following keys; a w s e d f t g y h u j k o l p
 <script>
-  pickPosition.oninput = () => pickPositionNumber.value = pickPosition.value
+  pickPosition.onchange = () => pickPositionNumber.value = pickPosition.value
   pickPositionNumber.oninput = () => pickPosition.value = pickPositionNumber.value
-  pickDirection.oninput = () => pickDirectionNumber.value = pickDirection.value
+  pickDirection.onchange = () => pickDirectionNumber.value = pickDirection.value
   pickDirectionNumber.oninput = () => pickDirection.value = pickDirectionNumber.value
-  decay.oninput = () => decayNumber.value = decay.value
+  decay.onchange = () => decayNumber.value = decay.value
   decayNumber.oninput = () => decay.value = decayNumber.value
-  brightness.oninput = () => brightnessNumber.value = brightness.value
+  brightness.onchange = () => brightnessNumber.value = brightness.value
   brightnessNumber.oninput = () => brightness.value = brightnessNumber.value
-  dynamicLevel.oninput = () => dynamicLevelNumber.value = dynamicLevel.value
+  dynamicLevel.onchange = () => dynamicLevelNumber.value = dynamicLevel.value
   dynamicLevelNumber.oninput = () => dynamicLevel.value = dynamicLevelNumber.value
-  feedback.oninput = () => feedbackNumber.value = feedback.value
+  feedback.onchange = () => feedbackNumber.value = feedback.value
   feedbackNumber.oninput = () => feedback.value = feedbackNumber.value
   setting.onchange=()=> {
-    if (setting.selectedIn0) { // C2 - dampened piano
+    if (setting.selectedIndex==0) { // Default
       pickPosition.value=0.2,
       pickDirection.value=0.2,
       decay.value=4,
       brightness.value=0.2,
       dynamicLevel.value=0.5,
-      feedback.value=0.5
+      feedback.value=0
     }
-    if (setting.selectedIn1) { // C2 - dampened piano
-      pickPosition.value=0.62,
-      pickDirection.value=0.62,
-      decay.value=6,
-      brightness.value=0.6,
-      dynamicLevel.value=0.6,
-      feedback.value=0.6
+    if (setting.selectedIndex==1) { // Muted Guitar
+      pickPosition.value=0,
+      pickDirection.value=0.9,
+      decay.value=4,
+      brightness.value=1,
+      dynamicLevel.value=1,
+      feedback.value=0
     }
-    pickPositionNumber.value=width.value
-    pickDirectionNumber.value=decay.value
+    if (setting.selectedIndex==2)  { //Distorted Guitar
+      pickPosition.value=0,
+      pickDirection.value=0,
+      decay.value=9,
+      brightness.value=1,
+      dynamicLevel.value=0.8,
+      feedback.value=0
+    }
+      if (setting.selectedIndex==3) { //Ambient Texture
+        pickPosition.value=0.6,
+        pickDirection.value=0.07,
+        decay.value=10,
+        brightness.value=1,
+        dynamicLevel.value=1,
+        feedback.value=0
+    }
+    if (setting.selectedIndex==4)  { //Nylon Strings
+      pickPosition.value=0.37,
+      pickDirection.value=0,
+      decay.value=3.35,
+      brightness.value=1,
+      dynamicLevel.value=1,
+      feedback.value=0
+    }
+
+    pickPositionNumber.value=pickPosition.value
+    pickDirectionNumber.value=pickDirection.value
     decayNumber.value=decay.value
-    brightnessNumber.value=note.value
+    brightnessNumber.value=brightness.value
     dynamicLevelNumber.value=dynamicLevel.value
     feedbackNumber.value=feedback.value
-    noiseNumber.value=noise.value    
     console.log(pickPosition.value)
     console.log(pickDirection.value)
     console.log(decay.value)

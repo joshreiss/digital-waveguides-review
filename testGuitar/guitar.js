@@ -1,4 +1,21 @@
 var context = new AudioContext
+function linASREnvelop(context,parameter, attack, sustain, release,attackLevel,sustainLevel,startLevel,endLevel) {
+  this.context = context,
+  this.parameter = parameter,
+  this.attack = attack,this.attackLevel= attackLevel || 1;
+  this.sustain = sustain,this.sustainLevel=sustainLevel || 1;
+  this.release = release,
+  this.startLevel = startLevel || 0,this.endLevel = endLevel || 0,
+  this.trigger = function(atTime) {
+    var startTime = atTime || this.context.currentTime;
+    this.parameter.cancelScheduledValues(startTime);
+    this.parameter.setValueAtTime(this.startLevel, startTime);
+    this.parameter.linearRampToValueAtTime(this.attackLevel, startTime + this.attack);//attack
+    this.parameter.setValueAtTime(this.sustainLevel, startTime + this.attack);//sustain, or hold
+    this.parameter.setValueAtTime(this.sustainLevel, startTime + this.attack + this.sustain);//sustain, or hold
+    this.parameter.linearRampToValueAtTime(this.endLevel, startTime + this.attack + this.sustain + this.release);//release
+  };
+};
 //Create parameters
 let i,maxVoices = 7
 const ringbuffer = new Array(maxVoices)
@@ -18,34 +35,29 @@ context.audioWorklet.addModule('Worklets.js').then(() => {
     noiseInput[i] = new AudioWorkletNode(context,'white-noise-generator')
     ringbuffer[i]  = new AudioWorkletNode(context,'ks-ring-buffer',{parameterData:{pitch_:440,buffersize_:110,pickdirection_:0,pickposition_:0,decay_:2.5,brightness_:0.1,fractionalDelay_:0.5, feedback_:0}})
     envelopGain[i] = new GainNode(context,{gain:0})
-    //envelop[i] = new linASREnvelop(envelopGain[i],envelopGain[i].gain,0,0.04,0.01,1,1,1,0)
+    envelop[i] = new linASREnvelop(context,envelopGain[i].gain,0,0.04,0.01,1,1,1,0)
     noiseInput[i].connect(envelopGain[i])
     envelopGain[i].connect(ringbuffer[i])
     ringbuffer[i].connect(context.destination)
   }
   //Binding Parameters to audio worklet parameters
-  pickPosition.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('pickposition_').value = pickPositionParameter.value }
-  pickDirection.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('pickdirection_').value= pickDirectionParameter.value }
-  decay.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('decay_').value= decayParameter.value }
-  dynamicLevel.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('level_').value= dynamicLevelParameter.value }
-  brightness.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('brightness_').value= brightnessParameter.value }
-  feedback.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('feedback_').value= feedBackParameter.value }
-  //calculate the phase delay and required BufferSize
-  function calcPhaseDelay()
-  {
-    let w = 2*Math.PI*freq/ context.sampleRate//omega
-    let dampDelay = (brightnessParameter.value* Math.sin(w*decayParameter.value))/((w*decayParameter.value)*(1-brightnessParameter.value)+brightnessParameter.value*(w*decayParameter.value)*Math.cos(w*decayParameter.value))
-    phaseDelay = dampDelay + 0.5
-    fractionalDelay = (context.sampleRate /freq) - Math.floor((context.sampleRate /freq) - phaseDelay) + phaseDelay
-    buffersize = (Math.floor((context.sampleRate /freq)) - phaseDelay)
-  }
+  pickPosition.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('pickposition_').value = pickPosition.value }
+  pickDirection.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('pickdirection_').value= pickDirection.value }
+  decay.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('decay_').value= decay.value }
+  dynamicLevel.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('level_').value= dynamicLevel.value }
+  brightness.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('brightness_').value= brightness.value }
+  feedback.oninput = () => { for(i=0;i<maxVoices;i++) ringbuffer[i].parameters.get('feedback_').value= feedback.value }
   //NoteOn and NoteOff functions
-  function NoteOn()
-  {
+  function NoteOn() {
     currentNote = (currentNote+1)%maxVoices
     let now = context.currentTime
     envelop[currentNote].trigger(now)
-    calcPhaseDelay()
+    //calculate the phase delay and required BufferSize
+    let w = 2*Math.PI*freq/ context.sampleRate//omega
+    let dampDelay = (brightness.value* Math.sin(w*decay.value))/((w*decay.value)*(1-brightness.value)+brightness.value*(w*decay.value)*Math.cos(w*decay.value))
+    phaseDelay = dampDelay + 0.5
+    fractionalDelay = (context.sampleRate /freq) - Math.floor((context.sampleRate /freq) - phaseDelay) + phaseDelay
+    buffersize = (Math.floor((context.sampleRate /freq)) - phaseDelay)
     ringbuffer[currentNote].parameters.get('buffersize_').value = buffersize
     ringbuffer[currentNote].parameters.get('pitch_').value = freq
   }

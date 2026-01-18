@@ -1,0 +1,171 @@
+  <h1>Faust Clarinet - Web Audio Implementation</h1>
+    <p>Web Audio version of Faust Clarinet by Romain Michon. Uses digital waveguide with nonlinear reed function, feedback loop & stereo spatialisation. Click Start then play using keyboard.
+  <button onclick='context.resume()'>Start</button>
+      <h3>Basic Parameters</h3>
+        <label for="freq">Frequency (Hz)</label>
+        <div>
+          <input type="range" id="freq" min="20" max="5000" step="1" value="440">
+          <span class="value" id="freqValue">440 Hz</span>
+        </div>
+        <label for="gain">Gain</label>
+        <div>
+          <input type="range" id="gain" min="0" max="1" step="0.01" value="1">
+          <span class="value" id="gainValue">1.00</span>
+        </div>
+      <h3>Physical Parameters</h3>
+        <label for="reedStiffness">Reed Stiffness</label>
+        <div>
+          <input type="range" id="reedStiffness" min="0" max="1" step="0.01" value="0.5">
+          <span class="value" id="reedStiffnessValue">0.50</span>
+        </div>
+        <label for="noiseGain">Noise Gain</label>
+        <div>
+          <input type="range" id="noiseGain" min="0" max="1" step="0.01" value="0">
+          <span class="value" id="noiseGainValue">0.00</span>
+        </div>
+        <label for="pressure">Breath Pressure</label>
+        <div>
+          <input type="range" id="pressure" min="0" max="1" step="0.01" value="1">
+          <span class="value" id="pressureValue">1.00</span>
+        </div>
+      <h3>Nonlinear Filter Parameters</h3>
+        <label for="nonLinearity">Nonlinearity</label>
+        <div>
+          <input type="range" id="nonLinearity" min="0" max="1" step="0.01" value="0">
+          <span class="value" id="nonLinearityValue">0.00</span>
+        </div>
+        <label for="nonLinAttack">Nonlinearity Attack (s)</label>
+        <div>
+          <input type="range" id="nonLinAttack" min="0" max="2" step="0.01" value="0.1">
+          <span class="value" id="nonLinAttackValue">0.10</span>
+        </div>
+      <h3>Vibrato Parameters</h3>
+        <label for="vibratoFreq">Vibrato Frequency (Hz)</label>
+        <div>
+          <input type="range" id="vibratoFreq" min="1" max="15" step="0.1" value="5">
+          <span class="value" id="vibratoFreqValue">5.0</span>
+        </div>
+        <label for="vibratoGain">Vibrato Gain</label>
+        <div>
+          <input type="range" id="vibratoGain" min="0" max="1" step="0.01" value="0.1">
+          <span class="value" id="vibratoGainValue">0.10</span>
+        </div>
+        <label for="vibratoAttack">Vibrato Attack (s)</label>
+        <div>
+          <input type="range" id="vibratoAttack" min="0" max="2" step="0.01" value="0.5">
+          <span class="value" id="vibratoAttackValue">0.50</span>
+        </div>
+        <label for="vibratoRelease">Vibrato Release (s)</label>
+        <div>
+          <input type="range" id="vibratoRelease" min="0" max="2" step="0.01" value="0.01">
+          <span class="value" id="vibratoReleaseValue">0.01</span>
+        </div>
+        <h3>Envelope Parameters</h3>
+          <label for="envelopeAttack">Envelope Attack (s)</label>
+          <div>
+            <input type="range" id="envelopeAttack" min="0" max="2" step="0.01" value="0.01">
+            <span class="value" id="envelopeAttackValue">0.01</span>
+          </div>
+          <label for="envelopeDecay">Envelope Decay (s)</label>
+          <div>
+            <input type="range" id="envelopeDecay" min="0" max="2" step="0.01" value="0.05">
+            <span class="value" id="envelopeDecayValue">0.05</span>
+          </div>
+          <label for="envelopeRelease">Envelope Release (s)</label>
+          <div>
+            <input type="range" id="envelopeRelease" min="0" max="2" step="0.01" value="0.1">
+            <span class="value" id="envelopeReleaseValue">0.10</span>
+          </div>
+    <h3>Reverb</h3>
+      <label for="reverbMix">Reverb Mix</label>
+      <div>
+        <input type="range" id="reverbMix" min="0" max="1" step="0.01" value="0.3">
+        <span class="value" id="reverbMixValue">0.30</span>
+      </div>
+  <script src="faust-clarinet-web.js"></script>
+  <script>
+    const keyElements = {}       
+    function getFrequency(noteName, octave) {// Map piano keys to frequencies
+      const notes = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5, 'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11}
+      return 440 * Math.pow(2, (notes[noteName] + octave * 12 - 57) / 12)
+    }   
+    const keyboardMap = { // Keyboard mapping to computer keyboard (2 octaves)
+      'z':{note:'C', octave:4},'s':{note:'C#', octave:4},'x':{note:'D', octave:4},'d':{note:'D#', octave:4},'c':{note:'E', octave:4},'v':{note:'F', octave:4},
+      'g':{note:'F#', octave:4},'b':{note:'G', octave:4},'h':{note:'G#', octave:4},'n':{note:'A', octave:4},'j':{note:'A#', octave:4},'m':{note:'B', octave:4},
+      ',':{note:'C', octave:5},'l':{note:'C#', octave:5},'.':{note:'D', octave:5},'':{note:'D#', octave:5},'/':{note:'E', octave:5}
+    }    
+    document.addEventListener('keydown', function(event) { // Computer keyboard control
+      const key = event.key.toLowerCase()
+      if (keyboardMap[key] && !event.repeat) {
+        const noteInfo = keyboardMap[key]
+        const noteName = noteInfo.note + noteInfo.octave
+        playNote(getFrequency(noteInfo.note, noteInfo.octave))
+        if (keyElements[noteName]) keyElements[noteName].classList.add('active')
+      }
+    })
+    document.addEventListener('keyup', function(event) {
+      const key = event.key.toLowerCase()
+      if (keyboardMap[key]) {
+        const noteInfo = keyboardMap[key]
+         const noteName = noteInfo.note + noteInfo.octave          
+        stopNote()
+        if (keyElements[noteName]) keyElements[noteName].classList.remove('active')
+      }
+    }) 
+    // Initialize Web Audio components
+    let clarinet, reverb, context = new AudioContext()
+    clarinet = new ClarinetModel(context)// Create the clarinet model
+    reverb = new SimpleReverb(context)// Create reverb effect
+    // Connect the audio path    
+  var Tone= context.createOscillator()
+  var Volume= context.createGain()
+  Volume.gain.value=0
+  Tone.start()
+  Tone.connect(Volume)
+  Volume.connect(context.destination)
+    clarinet.connect(reverb.input)
+    //reverb.connect(context.destination)
+    // Set up all sliders to control parameters  
+      function setupSlider(id, setter, formatter = (v) => v.toFixed(2)) {// Helper function to set up sliders
+        const slider = document.getElementById(id)
+        const valueDisplay = document.getElementById(id + 'Value')        
+        slider.addEventListener('input', function() {
+          const value = parseFloat(this.value)
+          valueDisplay.textContent = formatter(value)
+          if (clarinet && setter) setter(value)
+        })
+      }
+      // Basic Parameters
+      setupSlider('gain', (val) => clarinet.setGain(val))
+      setupSlider('freq', (val) => clarinet.setFrequency(val), (v) => Math.round(v) + ' Hz')      
+      // Physical Parameters
+      setupSlider('reedStiffness', (val) => clarinet.setReedStiffness(val))
+      setupSlider('noiseGain', (val) => clarinet.setNoiseGain(val))
+      setupSlider('pressure', (val) => clarinet.setPressure(val))      
+      // Nonlinear Parameters
+      setupSlider('nonLinearity', (val) => clarinet.setNonLinearity(val))
+      setupSlider('nonLinAttack', (val) => clarinet.setNonLinAttack(val), (v) => v.toFixed(2) + ' s')
+      // Vibrato Parameters
+      setupSlider('vibratoFreq', (val) => clarinet.setVibratoFreq(val), (v) => v.toFixed(1) + ' Hz')
+      setupSlider('vibratoGain', (val) => clarinet.setVibratoGain(val))
+      setupSlider('vibratoAttack', (val) => clarinet.setVibratoAttack(val), (v) => v.toFixed(2) + ' s')
+      setupSlider('vibratoRelease', (val) => clarinet.setVibratoRelease(val), (v) => v.toFixed(2) + ' s')      
+      // Envelope Parameters
+      setupSlider('envelopeAttack', (val) => clarinet.setEnvelopeAttack(val), (v) => v.toFixed(2) + ' s')
+      setupSlider('envelopeDecay', (val) => clarinet.setEnvelopeDecay(val), (v) => v.toFixed(2) + ' s')
+      setupSlider('envelopeRelease', (val) => clarinet.setEnvelopeRelease(val), (v) => v.toFixed(2) + ' s')      
+      // Reverb
+      setupSlider('reverbMix', (val) => reverb.setMix(val))
+    // Play and stop notes
+    function playNote(frequency) {      
+        console.log('Play', frequency)
+      Volume.gain.value=1
+      if (clarinet) {
+        clarinet.startNote(frequency)
+        // Update frequency display
+        freq.value = Math.round(frequency)
+        freqValue.textContent = Math.round(frequency) + ' Hz'
+      }
+    }    
+    function stopNote() { if (clarinet) clarinet.stopNote(); Volume.gain.value=0 }  
+  </script>
