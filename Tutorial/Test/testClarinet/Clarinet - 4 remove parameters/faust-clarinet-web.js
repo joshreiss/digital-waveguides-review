@@ -17,11 +17,10 @@ class ClarinetModel {
     this.nonLinearityNode = context.createGain();
     // Setup default parameter values (matching Faust implementation)
     this.parameters = {
-      freq:440,reedStiffness:0.5,pressure:1.0,nonLinearity:0.0,nonLinAttack:0.1,vibratoFreq:5.0,
-      vibratoGain:0.1,vibratoAttack:0.5,vibratoRelease:0.01,envelopeAttack:0.01,envelopeDecay:0.05,envelopeRelease:0.1 }   
+      freq:440,pressure:1.0,nonLinearity:0.0,vibratoFreq:5.0,vibratoGain:0.1,vibratoAttack:0.5,vibratoRelease:0.01,envelopeAttack:0.01,envelopeDecay:0.05,envelopeRelease:0.1 }   
     // Initialize all values
-    this.breathEnvelope.gain.value = 0.0;
-    this.vibratoGain.gain.value = 0.0;
+    this.breathEnvelope.gain.value = 0.0
+    this.vibratoGain.gain.value = 0.0
     this.vibratoOsc.frequency.value = this.parameters.vibratoFreq
     // Connect the nodes to create the waveguide model
     this.setupAudioGraph();    
@@ -31,14 +30,11 @@ class ClarinetModel {
     // Store the frequency value
     this.parameters.freq = 440
     // Calculate delay line length based on frequency
-    // Delay length = (sample rate / frequency) * 0.5 - filter corrections
-    const delayLength = (context.sampleRate / 440) * 0.5 - 1.5    
-    // Set the delay time
-    this.delayLine.delayTime.setTargetAtTime(delayLength / context.sampleRate,context.currentTime,0.01)  
+    const delayLength = (context.sampleRate / 440) * 0.5 - 1.5 // Delay length = (sample rate / frequency) * 0.5 - filter corrections
+    this.delayLine.delayTime.setTargetAtTime(delayLength / context.sampleRate,context.currentTime,0.01)// Set delay time
   }  
   setupAudioGraph() {
-    // Breath pressure path
-    this.breathEnvelope.connect(this.breathPressure);  
+    this.breathEnvelope.connect(this.breathPressure)// Breath pressure path  
     // Vibrato
     this.vibratoOsc.connect(this.vibratoGain);
     this.vibratoGain.connect(this.vibratoEnvelope);
@@ -47,14 +43,12 @@ class ClarinetModel {
     this.breathPressure.connect(this.reedTable);
     this.reedTable.connect(this.delayLine);
     this.delayLine.connect(this.filter);
-    this.filter.connect(this.nonLinearityNode);    
-    // Feedback from filter back to reed table
-    this.filter.connect(this.reedTable);    
-    // Output path
-    this.nonLinearityNode.connect(this.outputNode)
+    this.filter.connect(this.nonLinearityNode)
+    this.filter.connect(this.reedTable) // Feedback from filter back to reed table    
+    this.nonLinearityNode.connect(this.outputNode)// Output path
   }  
   updateReedTable(stiffness) {
-    // Reed table parameters (from the Faust implementation)
+    // Reed table parameters (from Faust implementation)
     const offset = 0.7;
     const slope = -0.44 + (0.26 * stiffness)    
     // Create the reed table waveshaper curve
@@ -107,24 +101,13 @@ class ClarinetModel {
   }
   connect(destination) { this.outputNode.connect(destination)}
   // Parameter setters
-  setReedStiffness(value) {
-    this.parameters.reedStiffness = value;
-    this.updateReedTable(value);
-  }
   setPressure(value) { this.parameters.pressure = value} // Actual pressure is set during noteOn
   setNonLinearity(value) {
     this.parameters.nonLinearity = value;
     this.nonLinearityNode.gain.setTargetAtTime(1.0 + value * 0.2,context.currentTime,0.05)// Simple approximation of nonlinear effect
   }
   setVibratoFreq(value) {
-    this.parameters.vibratoFreq = value;
-    this.vibratoOsc.frequency.setTargetAtTime(value,context.currentTime,0.05);
+    this.parameters.vibratoFreq = value
+    this.vibratoOsc.frequency.setTargetAtTime(value,context.currentTime,0.05)
   }
-  setVibratoGain(value) { this.parameters.vibratoGain = value } // Actual vibrato gain is applied during noteOn with envelope  }
-  setEnvelopeAttack(value) { this.parameters.envelopeAttack = value  }
-  setEnvelopeDecay(value) { this.parameters.envelopeDecay = value  }
-  setEnvelopeRelease(value) { this.parameters.envelopeRelease = value }
-  setVibratoAttack(value) { this.parameters.vibratoAttack = value  }
-  setVibratoRelease(value) { this.parameters.vibratoRelease = value }
-  setNonLinAttack(value) { this.parameters.nonLinAttack = value }
 }

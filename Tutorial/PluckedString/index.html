@@ -1,3 +1,26 @@
+This is a simple digital waveguide producing the sound of a plucked string. By varying the settings, it can reproduce a wide variety of sounds.<br><br>
+
+
+Setting <select id='setting'>
+  <option>Default</option>
+  <option>C2 - damped piano</option>
+  <option>E2 - damped piano</option>
+  <option>G2 - damped piano</option>
+  <option>B2 - damped piano</option>
+  <option>C3 - regular piano</option>
+  <option>E3 - regular piano</option>
+  <option>G3 - regular piano</option>
+  <option>Aggresively bowed cello-Bb2</option>
+  <option>Aggresively bowed cello-F4</option>
+  <option>Tension/thrilller C1-short</option>
+  <option>Tension/thrilller C1-long</option>
+  <option>Knocking on glass</option>
+  <option>Plucking string with glass</option>
+  <option>Drum&Bass G1</option>
+  <option>Deep impact vibrations</option>
+  <option>Scraped guitar string</option>
+</select><br>
+
 <input type='range' min=0 max=1 value=0.02 step=0.02 id='width'>
 <input type='number' min=0 max=1 value=0.02 step=0.02 id='widthNumber'>
 width<br>
@@ -19,26 +42,19 @@ sawtooth<br>
 <input type='range' min=0 max=1 value=0.5 step=0.01 id='noise'>
 <input type='number' min=0 max=1 value=0.5 step=0.01 id='noiseNumber'>
 noise<br><br>
-<select id='setting'>
-  <option>Default</option>
-  <option>C2 - damped piano</option>
-  <option>E2 - damped piano</option>
-  <option>G2 - damped piano</option>
-  <option>B2 - damped piano</option>
-  <option>C3 - regular piano</option>
-  <option>E3 - regular piano</option>
-  <option>G3 - regular piano</option>
-  <option>Aggresively bowed cello-Bb2</option>
-  <option>Aggresively bowed cello-F4</option>
-  <option>Tension/thrilller C1-short</option>
-  <option>Tension/thrilller C1-long</option>
-  <option>Knocking on glass</option>
-  <option>Plucking string with glass</option>
-  <option>Drum&Bass G1</option>
-  <option>Deep impact vibrations</option>
-  <option>Scraped guitar string</option>
-</select> Setting<br>
 <input type='button' value='pluck' id='Pluck'>
+<br>
+
+<em>How it works:</em>
+The input is a weighted combination of a sinusoid, a phasor and a noise source.<br>
+This is multiplied by an envelope so that the excitation is a burst of signal, of duration <i>width</i>, to excite the string. <br>
+This is then put into a feedback loop, with a given delay, and a low pass filter and attenuation (gain less than one).<br>
+The delay time is set to produce a note corresponding to a number on the Midi scale.<br><br>
+
+A block diagram is depicted below,<br>
+
+<img src="PluckedString.png" width=40% height=40%><br>
+
 <script>
   width.oninput = () => widthNumber.value = width.value
   widthNumber.oninput = () => width.value = widthNumber.value

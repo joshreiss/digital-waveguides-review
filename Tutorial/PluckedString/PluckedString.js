@@ -13,12 +13,12 @@ context.audioWorklet.addModule('Worklets.js').then(() => {
   var flatNoise = new AudioWorkletNode(context, 'white-noise-generator')
   var flatNoiseGain = new GainNode(context,{gain:0.5})
   flatNoise.connect(flatNoiseGain)
-  var LPFilter1 = new AudioWorkletNode(context, 'single-pole-lpf',{parameterData:{frequency:5700}})  
   OutGain = new GainNode(context)
   flatNoiseGain.connect(OutGain)
   PhasorGain.connect(OutGain)
-  OscGain.connect(OutGain)
+  OscGain.connect(OutGain)  
   var DriveNode = new multiplySignals(constantNode,OutGain,context)
+  var LPFilter1 = new AudioWorkletNode(context, 'single-pole-lpf',{parameterData:{frequency:5700}})  
   DecayGain = new GainNode(context,{gain:0})
   LPFilter1.connect(DecayGain)
   DecayGain.connect(aDelay)
@@ -26,7 +26,7 @@ context.audioWorklet.addModule('Worklets.js').then(() => {
   aDelay.connect(LPFilter1)
   DecayGain.connect(context.destination)  
   Pluck.onclick = function() { 
-    console.log(decay.value)
+    context.resume()
     let width1 = width.value*400 
     aDelay.delayTime.value = 1 / (440 * Math.pow (2, (note.value - 69) / 12)) - 128 / context.sampleRate
     DecayGain.gain.value=decay.value

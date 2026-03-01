@@ -1,0 +1,7 @@
+<button onclick='context.resume()'>Start</button>
+<script>
+  context= new AudioContext()
+  Tone= context.createOscillator()
+  Tone.start()
+  Tone.connect(context.destination)
+</script>

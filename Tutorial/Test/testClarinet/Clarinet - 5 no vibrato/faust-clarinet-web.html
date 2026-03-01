@@ -1,0 +1,26 @@
+<h1>Faust Clarinet - Web Audio version by Romain Michon</h1>
+<p>Uses digital waveguide with nonlinear reed function & feedback loop. Click any key to play.
+<script src="faust-clarinet-web.js"></script>
+<script>
+  document.addEventListener('keydown', function(event) { playNote(440)})
+  document.addEventListener('keyup', function(event) { stopNote()}) 
+  // Initialize Web Audio components
+  let clarinet, context = new AudioContext()
+  clarinet = new ClarinetModel(context)// Create the clarinet model
+  // Connect the audio path    
+  var Tone= context.createOscillator()
+  var Volume= new GainNode(context,{gain:0})
+  Tone.start()
+  Tone.connect(Volume).connect(context.destination)
+  clarinet.connect(context.destination)
+  // Nonlinear Parameters
+  clarinet.setNonLinearity(0)
+  // Play and stop notes
+  function playNote(frequency) {  
+    context.resume()    
+    console.log('Play', frequency)
+    Volume.gain.value=1
+    if (clarinet) clarinet.startNote(440)
+  }    
+  function stopNote() { if (clarinet) clarinet.stopNote(); Volume.gain.value=0 }  
+</script>

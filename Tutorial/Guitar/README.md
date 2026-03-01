@@ -1,0 +1,1 @@
+PluckedString, based on https://nemisindo.com/models/guitar

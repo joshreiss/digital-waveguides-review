@@ -1,22 +1,15 @@
-//Nonlinear WaveGuide Clarinet based on Smith (1986), McIntyre, Schumacher, Woodhouse (1983)
-//Romain Michon rmichon@ccrma.stanford.edu, https://ccrma.stanford.edu/~jos/pasp/Woodwinds.html
+//Nonlinear WaveGuide Clarinet based on Smith (1986), McIntyre, Schumacher, Woodhouse (1983); Romain Michon rmichon@ccrma.stanford.edu, https://ccrma.stanford.edu/~jos/pasp/Woodwinds.html
 import("instruments.lib");
 freq = 440;
 gate = button("h:/gate [tooltip:noteOn = 1, noteOff = 0]");
-//physical parameters
+//physical parameters, removed noise since noiseGain=0
 reedStiffness = 0.5;
-noiseGain = 0;
 pressure = 1; //breath pressure
 //nonlinear filter parameters
 typeModulation = 0;//theta is modulated by the incoming signal
 nonLinearity = 0;
 frequencyMod = 220;//Frequency of the sine wave for the modulation of theta (if Modulation Type=3)
 nonLinAttack = 0.1;
-//vibrato parameters
-vibratoFreq = 5;
-vibratoGain = 0.1;
-vibratoAttack = 0.5;
-vibratoRelease = 0.01;
  //envelope parameters
 envelopeAttack = 0.01;
 envelopeDecay = 0.05;
@@ -40,27 +33,19 @@ NLFM =  nonLinearModulator((nonLinearity : si.smoo),envelopeMod,freq,typeModulat
 reedTableOffset = 0.7;
 reedTableSlope = -0.44 + (0.26*reedStiffness);
 
-//the reed function is declared in instruments.lib
-reedTable = reed(reedTableOffset,reedTableSlope);
+reedTable = reed(reedTableOffset,reedTableSlope);//reed function declared in instruments.lib
 
 //delay line with a length adapted in function of the order of nonlinear filter
 delayLength = ma.SR/freq*0.5 - 1.5 - (nlfOrder*nonLinearity)*(typeModulation < 2);
 delayLine = de.fdelay(4096,delayLength);
 
-//one zero filter used as a allpass: pole is set to -1
-filter = oneZero0(0.5,0.5);
+filter = oneZero0(0.5,0.5);//one zero filter used as a allpass: pole is set to -1
 
 //----------------------- Algorithm implementation ----------------------------
-//Breath pressure + vibrato + breath noise + envelope (Attack / Decay / Sustain / Release)
-envelope = en.adsr(envelopeAttack,envelopeDecay,1,envelopeRelease,gate)*pressure*0.9;
-vibrato = os.osc(vibratoFreq)*vibratoGain*envVibrato(0.1*2*vibratoAttack,0.9*2*vibratoAttack,100,vibratoRelease,gate);
-breath = envelope + envelope*no.noise*noiseGain;
-breathPressure = breath + breath*vibrato;
+//Breath pressure + breath envelope (Attack / Decay / Sustain / Release)
+breathPressure = en.adsr(envelopeAttack,envelopeDecay,1,envelopeRelease,gate)*pressure*0.9;
 process =
-	//Commuted Loss Filtering
-	(_,(breathPressure <: _,_) : (filter*-0.95 - _ <: 	
-	//Nonlinear Scattering
-	*(reedTable)) + _) ~ 	
-	//Delay with Feedback
-	(delayLine : NLFM) ;
+	(_,(breathPressure <: _,_) : (filter*-0.95 - _ <: //Commuted Loss Filtering
+	*(reedTable)) + _) ~ //Nonlinear Scattering	
+	(delayLine : NLFM) ;//Delay with Feedback
 

@@ -15,19 +15,10 @@
   Tone.connect(Volume).connect(context.destination)
   clarinet.connect(context.destination)
       // Physical Parameters
-      clarinet.setReedStiffness(0.5)
       clarinet.setPressure(1)
       // Nonlinear Parameters
       clarinet.setNonLinearity(0)
-      clarinet.setNonLinAttack(0.1)
       clarinet.setVibratoFreq(5)
-      clarinet.setVibratoGain(0.1)
-      clarinet.setVibratoAttack(0.5)
-      clarinet.setVibratoRelease(0.01)  
-      // Envelope Parameters
-      clarinet.setEnvelopeAttack(0.01)
-      clarinet.setEnvelopeDecay(0.05)
-      clarinet.setEnvelopeRelease(0.1)  
     // Play and stop notes
     function playNote(frequency) {      
         console.log('Play', frequency)

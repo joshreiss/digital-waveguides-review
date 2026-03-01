@@ -27,10 +27,9 @@ registerProcessor('phasor-generator',class extends AudioWorkletProcessor {
       let inputChannel = input[channel],outputChannel = output[channel];
       if (frequency.length === 1)
       {
-
         for (let i = 0; i < outputChannel.length; ++i) {
-          if (this.phase > duty) outputChannel[i]=0;
-          else outputChannel[i]=this.phase * (1/duty);
+          if (this.phase > duty[0]) outputChannel[i]=0;
+          else outputChannel[i]=this.phase * (1/duty[0]);
           this.phase += frequency[0] / sampleRate;
           this.phase = this.phase-Math.floor(this.phase);
             // console.log("freq.length === 1 this.phase: ", this.phase);
@@ -39,8 +38,8 @@ registerProcessor('phasor-generator',class extends AudioWorkletProcessor {
       else
       {
         for (let i = 0; i < outputChannel.length; ++i) {
-          if (this.phase > duty) outputChannel[i]=0;
-          else outputChannel[i]=this.phase * (1/duty);
+          if (this.phase > duty[i]) outputChannel[i]=0;
+          else outputChannel[i]=this.phase * (1/duty[i]);
           this.phase += frequency[i] / sampleRate;
           this.phase = this.phase-Math.floor(this.phase);
         }

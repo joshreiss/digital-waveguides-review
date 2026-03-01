@@ -1,0 +1,83 @@
+class ClarinetModel {
+  constructor(context) {
+    // Create nodes
+    this.outputNode = context.createGain()
+    this.delayLine = context.createDelay(2.0); // Max 2 seconds delay
+    this.breathPressure = context.createGain();
+    this.breathEnvelope = context.createGain()    
+    this.filter = new BiquadFilterNode(context,{type:'highpass',frequency:8000,Q:0.7})// One-zero filter (approximated with BiquadFilter)
+    // Reed table (nonlinear waveshaper)
+    this.reedTable = context.createWaveShaper();
+    this.updateReedTable(0.5); // Default reed stiffness
+    // Nonlinear filter simulation
+    this.nonLinearityNode = context.createGain();
+    // Setup default parameter values (matching Faust implementation)
+    this.parameters = { freq:440,nonLinearity:0.0,envelopeAttack:0.01,envelopeDecay:0.05,envelopeRelease:0.1 }   
+    // Initialize all values
+    this.breathEnvelope.gain.value = 0.0
+    // Connect the nodes to create the waveguide model
+    this.setupAudioGraph();   
+    // Set initial frequency 440    
+    // Store the frequency value
+    this.parameters.freq = 440
+    // Calculate delay line length based on frequency
+    const delayLength = (context.sampleRate / 440) * 0.5 - 1.5 // Delay length = (sample rate / frequency) * 0.5 - filter corrections
+    this.delayLine.delayTime.setTargetAtTime(delayLength / context.sampleRate,context.currentTime,0.01)// Set delay time
+  }  
+  setupAudioGraph() {
+    this.breathEnvelope.connect(this.breathPressure)// Breath pressure path  
+    // Main waveguide feedback loop
+    this.breathPressure.connect(this.reedTable);
+    this.reedTable.connect(this.delayLine);
+    this.delayLine.connect(this.filter);
+    this.filter.connect(this.nonLinearityNode)
+    this.filter.connect(this.reedTable) // Feedback from filter back to reed table    
+    this.nonLinearityNode.connect(this.outputNode)// Output path
+  }  
+  updateReedTable(stiffness) {
+    // Reed table parameters (from Faust implementation)
+    const offset = 0.7;
+    const slope = -0.44 + (0.26 * stiffness)    
+    // Create the reed table waveshaper curve
+    const tableSize = 2048;
+    const curve = new Float32Array(tableSize)    
+    for (let i = 0; i < tableSize; i++) {
+      // Map index to range -1 to 1
+      let x = (i / (tableSize - 1)) * 2 - 1     
+      // Apply reed table function (offset + slope * x)
+      let y = offset + (slope * x);      
+      // Apply limiting
+      if (y > 1.0) y = 1.0;
+      if (y < -1.0) y = -1.0;
+      curve[i] = y;
+    }    
+    this.reedTable.curve = curve;
+  }  
+  startNote(frequency,velocity = 1.0) {
+    const now = context.currentTime 
+    // Set envelope parameters
+    const attack = this.parameters.envelopeAttack;
+    const decay = this.parameters.envelopeDecay;
+    const release = this.parameters.envelopeRelease   
+    const maxPressure = velocity // Calculate breath pressure based on velocity  
+    // Apply ADSR envelope
+    this.breathEnvelope.gain.cancelScheduledValues(now);
+    this.breathEnvelope.gain.setValueAtTime(0,now);
+    this.breathEnvelope.gain.linearRampToValueAtTime(maxPressure,now + attack);
+    this.breathEnvelope.gain.linearRampToValueAtTime(maxPressure * 0.9,now + attack + decay);    
+  }  
+  stopNote() {
+    const now = context.currentTime;
+    const release = this.parameters.envelopeRelease  
+    // Apply release to breath pressure
+    this.breathEnvelope.gain.cancelScheduledValues(now);
+    this.breathEnvelope.gain.setValueAtTime(this.breathEnvelope.gain.value,now);
+    this.breathEnvelope.gain.linearRampToValueAtTime(0,now + release)
+  }
+  connect(destination) { this.outputNode.connect(destination)}
+  // Parameter setters
+  setNonLinearity(value) {
+    this.parameters.nonLinearity = value;
+    this.nonLinearityNode.gain.setTargetAtTime(1.0 + value * 0.2,context.currentTime,0.05)// Simple approximation of nonlinear effect
+  }
+}

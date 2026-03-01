@@ -7,7 +7,6 @@ Web Audio implementation of the Faust clarinet model
     - Nonlinear Filter Parameters
     - Vibrato Parameters
     - Envelope Parameters
-  3. To use it:
-    - Load the HTML file in a browser
-    - Click "Start Clarinet" button to initialize Web Audio
+  3. To use:
+    - Click 'Start' to initialize Web Audio
     - Play notes using the piano keyboard or computer keys (Z-M row and above)
