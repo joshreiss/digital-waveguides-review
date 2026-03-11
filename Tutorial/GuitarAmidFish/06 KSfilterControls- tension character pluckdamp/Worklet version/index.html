@@ -15,7 +15,7 @@
   <output id="stringTensionValue">0.0</output> String tension<br>
 <script>
   var context = new AudioContext
-  context.audioWorklet.addModule('KSWorklets.js').then(() => {
+  context.audioWorklet.addModule('worklets.js').then(() => {
     let noise = new AudioWorkletNode(context,'noise-generator'),
     character = new AudioWorkletNode(context,'noise-generator'),
     PluckDamper = new AudioWorkletNode(context,'smoothing-filter',

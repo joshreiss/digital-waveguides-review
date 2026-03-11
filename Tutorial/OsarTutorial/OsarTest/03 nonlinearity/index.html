@@ -1,0 +1,43 @@
+<!-- Same as third example at https://www.osar.fr/notes/waveguides/ , minus peaklim -->
+  <p><input type='number' min=0 max=1 value=0 step=0.05 id='Exciter'> Exciter</p>
+  <p><input type='number' min=0.1 max=10 value=5 step=0.05 id='Delay'> Delay (ms)</p>
+  <p><input type='number' min=-1.5 max=1.5 value=0.7 step=0.05 id='Feedback'> Feedback</p>
+  <p><input type='number' min=100 max=10000 value=2000 step=10 id='ExciterCutoff'> Exciter cutoff</p>
+  <p><input type='number' min=100 max=10000 value=1200 step=10 id='LoopCutoff'> Loop cutoff</p>
+  <input type='button' value='play' onclick='context.resume()' id='Play'>
+  <script>
+    function feedbackMapping(input) { return 0.171818*( 5*Math.tanh(2*Number(input))+Number(input) ) }
+    var context = new AudioContext()
+    context.audioWorklet.addModule('worklets.js').then(() => {
+      let noise = new AudioWorkletNode(context,'noise-generator')
+      let lowpass = new BiquadFilterNode(context,{frequency:ExciterCutoff.value})
+      let feedbackDelay= new AudioWorkletNode(context,'feedbackDelay-processor',
+        {parameterData:{delayTime:Delay.value,gain:feedbackMapping(Feedback.value),frequency:LoopCutoff.value}})
+      let noiseGain= new GainNode(context,{gain:0.3})
+      let envelope= new GainNode(context,{gain:0})
+      let wet= new GainNode(context,{gain:1})
+      let dry= new GainNode(context,{gain:0})
+
+      noise.connect(noiseGain).connect(lowpass).connect(envelope)    
+      envelope.connect(wet).connect(feedbackDelay)
+      lowpass.connect(dry).connect(feedbackDelay)
+      feedbackDelay.connect(context.destination)
+
+      setInterval(tick, 500)
+      function tick() {
+        now=context.currentTime
+        envelope.gain.setValueAtTime(1, now)
+        envelope.gain.linearRampToValueAtTime(1, now + 0.001)
+        envelope.gain.linearRampToValueAtTime(0, now + 0.01)
+      }
+        
+      Exciter.oninput = () => {
+        dry.gain.value = Exciter.value
+        wet.gain.value = 1 - Exciter.value
+      }
+      Delay.oninput = () => feedbackDelay.parameters.get('delayTime').value= Delay.value 
+      Feedback.oninput = () => feedbackDelay.parameters.get('gain').value = feedbackMapping(Feedback.value)
+      ExciterCutoff.oninput = () => lowpass.frequency.value= ExciterCutoff.value 
+      LoopCutoff.oninput = () => feedbackDelay.parameters.get('frequency').value = LoopCutoff.value
+    })    
+  </script>

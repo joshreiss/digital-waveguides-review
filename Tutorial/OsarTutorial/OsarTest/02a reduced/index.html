@@ -1,0 +1,18 @@
+<input type='button' value='play' onclick='context.resume()' id='Play'>
+<script>
+  var context = new AudioContext()
+  context.audioWorklet.addModule('worklets.js').then(() => {
+    let noise = new AudioWorkletNode(context,'noise-generator')
+    let feedbackDelay= new AudioWorkletNode(context,'feedbackDelay-processor')
+    let envelope= new GainNode(context,{gain:0})
+
+    noise.connect(envelope).connect(feedbackDelay).connect(context.destination)
+
+    setInterval(tick, 500)
+    function tick() {
+      now=context.currentTime
+      envelope.gain.setValueAtTime(0.3, now)
+      envelope.gain.linearRampToValueAtTime(0, now + 0.01)
+    }
+  })    
+</script>

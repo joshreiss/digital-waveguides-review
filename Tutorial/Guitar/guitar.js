@@ -30,7 +30,7 @@ let phaseDelay = 0
 let fractionalDelay = 0
 let state = false //State of the button
 let lowNote = 48,highNote = 65,octave=0
-context.audioWorklet.addModule('Worklets.js').then(() => {
+context.audioWorklet.addModule('worklets.js').then(() => {
    for(i=0;i<maxVoices;i++) {
     noiseInput[i] = new AudioWorkletNode(context,'white-noise-generator')
     ringbuffer[i]  = new AudioWorkletNode(context,'ks-ring-buffer',{parameterData:{pitch_:440,buffersize_:110,pickdirection_:0,pickposition_:0,decay_:2.5,brightness_:0.1,fractionalDelay_:0.5, feedback_:0}})

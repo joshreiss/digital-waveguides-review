@@ -1,106 +1,108 @@
-In this example, a digital waveguide is used to simulate a guitar. The following parameters directly control the digital waveguide, which is implemented as an audio worklet.
-<ul>
-  <li>Pick position - </li>
-  <li>Pick direction - </li>
-  <li>Decay - </li>
-  <li>Brightness - </li>
-  <li>Dynamic level - </li>
-  <li>Feedback - </li>
-</ul>
-<input type='range' min=0 max=1 value=0.01 step=0.01 id='pickPosition'>
-<input type='number' min=0 max=1 value=0.01 step=0.01 id='pickPositionNumber'>
-Pick position <br>
-<input type='range' min=0 max=0.9 value=0.01 step=0.01 id='pickDirection'>
-<input type='number' min=0 max=0.9 value=0.01 step=0.01 id='pickDirectionNumber'>
-Pick direction<br>
-<input type='range' min=0.5 max=10 value=2.5 step=0.05 id='decay'>
-<input type='number' min=0.5 max=10 value=2.5 step=0.05 id='decayNumber'>
-Decay<br>
-<input type='range' min=0 max=1 value=1 step=0.01 id='brightness'>
-<input type='number' min=0 max=1 value=1 step=0.01 id='brightnessNumber'>
-Brightness<br>
-<input type='range' min=0.1 max=1 value=1 step=0.01 id='dynamicLevel'>
-<input type='number' min=0.1 max=1 value=1 step=0.01 id='dynamicLevelNumber'>
-Dynamic level<br>
-<input type='range' min=0 max=1 value=0.0 step=0.01 id='feedback'>
-<input type='number' min=0 max=1 value=0.0 step=0.01 id='feedbackNumber'>
-Feedback<br><br>
-<select id='setting'>
-  <option>Default</option>
-  <option>Muted guitar</option>
-  <option>Nylon strings</option>
-  <option>Distorted guitar</option>
-  <option>Ambient texture</option>
-</select> Setting<br>
-Use the following keys; a w s e d f t g y h u j k o l p
-<script>
-  pickPosition.onchange = () => pickPositionNumber.value = pickPosition.value
-  pickPositionNumber.oninput = () => pickPosition.value = pickPositionNumber.value
-  pickDirection.onchange = () => pickDirectionNumber.value = pickDirection.value
-  pickDirectionNumber.oninput = () => pickDirection.value = pickDirectionNumber.value
-  decay.onchange = () => decayNumber.value = decay.value
-  decayNumber.oninput = () => decay.value = decayNumber.value
-  brightness.onchange = () => brightnessNumber.value = brightness.value
-  brightnessNumber.oninput = () => brightness.value = brightnessNumber.value
-  dynamicLevel.onchange = () => dynamicLevelNumber.value = dynamicLevel.value
-  dynamicLevelNumber.oninput = () => dynamicLevel.value = dynamicLevelNumber.value
-  feedback.onchange = () => feedbackNumber.value = feedback.value
-  feedbackNumber.oninput = () => feedback.value = feedbackNumber.value
-  setting.onchange=()=> {
-    if (setting.selectedIndex==0) { // Default
-      pickPosition.value=0.2,
-      pickDirection.value=0.2,
-      decay.value=4,
-      brightness.value=0.2,
-      dynamicLevel.value=0.5,
-      feedback.value=0
-    }
-    if (setting.selectedIndex==1) { // Muted Guitar
-      pickPosition.value=0,
-      pickDirection.value=0.9,
-      decay.value=4,
-      brightness.value=1,
-      dynamicLevel.value=1,
-      feedback.value=0
-    }
-    if (setting.selectedIndex==2)  { //Distorted Guitar
-      pickPosition.value=0,
-      pickDirection.value=0,
-      decay.value=9,
-      brightness.value=1,
-      dynamicLevel.value=0.8,
-      feedback.value=0
-    }
-      if (setting.selectedIndex==3) { //Ambient Texture
-        pickPosition.value=0.6,
-        pickDirection.value=0.07,
-        decay.value=10,
+<div style="font-family:Arial,Helvetica,sans-serif; line-height:1.2">
+  In this example, a digital waveguide is used to simulate a guitar. The following parameters directly control the digital waveguide, which is implemented as an audio worklet.
+  <ul>
+    <li>Pick position - </li>
+    <li>Pick direction - </li>
+    <li>Decay - </li>
+    <li>Brightness - </li>
+    <li>Dynamic level - </li>
+    <li>Feedback - </li>
+  </ul>
+  <input type='range' min=0 max=1 value=0.01 step=0.01 id='pickPosition'>
+  <input type='number' min=0 max=1 value=0.01 step=0.01 id='pickPositionNumber'>
+  Pick position <br>
+  <input type='range' min=0 max=0.9 value=0.01 step=0.01 id='pickDirection'>
+  <input type='number' min=0 max=0.9 value=0.01 step=0.01 id='pickDirectionNumber'>
+  Pick direction<br>
+  <input type='range' min=0.5 max=10 value=2.5 step=0.05 id='decay'>
+  <input type='number' min=0.5 max=10 value=2.5 step=0.05 id='decayNumber'>
+  Decay<br>
+  <input type='range' min=0 max=1 value=1 step=0.01 id='brightness'>
+  <input type='number' min=0 max=1 value=1 step=0.01 id='brightnessNumber'>
+  Brightness<br>
+  <input type='range' min=0.1 max=1 value=1 step=0.01 id='dynamicLevel'>
+  <input type='number' min=0.1 max=1 value=1 step=0.01 id='dynamicLevelNumber'>
+  Dynamic level<br>
+  <input type='range' min=0 max=1 value=0.0 step=0.01 id='feedback'>
+  <input type='number' min=0 max=1 value=0.0 step=0.01 id='feedbackNumber'>
+  Feedback<br><br>
+  <select id='setting'>
+    <option>Default</option>
+    <option>Muted guitar</option>
+    <option>Nylon strings</option>
+    <option>Distorted guitar</option>
+    <option>Ambient texture</option>
+  </select> Setting<br>
+  Use the following keys; a w s e d f t g y h u j k o l p
+  <script>
+    pickPosition.onchange = () => pickPositionNumber.value = pickPosition.value
+    pickPositionNumber.oninput = () => pickPosition.value = pickPositionNumber.value
+    pickDirection.onchange = () => pickDirectionNumber.value = pickDirection.value
+    pickDirectionNumber.oninput = () => pickDirection.value = pickDirectionNumber.value
+    decay.onchange = () => decayNumber.value = decay.value
+    decayNumber.oninput = () => decay.value = decayNumber.value
+    brightness.onchange = () => brightnessNumber.value = brightness.value
+    brightnessNumber.oninput = () => brightness.value = brightnessNumber.value
+    dynamicLevel.onchange = () => dynamicLevelNumber.value = dynamicLevel.value
+    dynamicLevelNumber.oninput = () => dynamicLevel.value = dynamicLevelNumber.value
+    feedback.onchange = () => feedbackNumber.value = feedback.value
+    feedbackNumber.oninput = () => feedback.value = feedbackNumber.value
+    setting.onchange=()=> {
+      if (setting.selectedIndex==0) { // Default
+        pickPosition.value=0.2,
+        pickDirection.value=0.2,
+        decay.value=4,
+        brightness.value=0.2,
+        dynamicLevel.value=0.5,
+        feedback.value=0
+      }
+      if (setting.selectedIndex==1) { // Muted Guitar
+        pickPosition.value=0,
+        pickDirection.value=0.9,
+        decay.value=4,
         brightness.value=1,
         dynamicLevel.value=1,
         feedback.value=0
-    }
-    if (setting.selectedIndex==4)  { //Nylon Strings
-      pickPosition.value=0.37,
-      pickDirection.value=0,
-      decay.value=3.35,
-      brightness.value=1,
-      dynamicLevel.value=1,
-      feedback.value=0
-    }
+      }
+      if (setting.selectedIndex==2)  { //Distorted Guitar
+        pickPosition.value=0,
+        pickDirection.value=0,
+        decay.value=9,
+        brightness.value=1,
+        dynamicLevel.value=0.8,
+        feedback.value=0
+      }
+        if (setting.selectedIndex==3) { //Ambient Texture
+          pickPosition.value=0.6,
+          pickDirection.value=0.07,
+          decay.value=10,
+          brightness.value=1,
+          dynamicLevel.value=1,
+          feedback.value=0
+      }
+      if (setting.selectedIndex==4)  { //Nylon Strings
+        pickPosition.value=0.37,
+        pickDirection.value=0,
+        decay.value=3.35,
+        brightness.value=1,
+        dynamicLevel.value=1,
+        feedback.value=0
+      }
 
-    pickPositionNumber.value=pickPosition.value
-    pickDirectionNumber.value=pickDirection.value
-    decayNumber.value=decay.value
-    brightnessNumber.value=brightness.value
-    dynamicLevelNumber.value=dynamicLevel.value
-    feedbackNumber.value=feedback.value
-    console.log(pickPosition.value)
-    console.log(pickDirection.value)
-    console.log(decay.value)
-    console.log(brightness.value)
-    console.log(dynamicLevel.value)
-    console.log(feedback.value)
-    console.log(setting.selectedIndex)
-  }
-</script>
-<script src='guitar.js'></script>
+      pickPositionNumber.value=pickPosition.value
+      pickDirectionNumber.value=pickDirection.value
+      decayNumber.value=decay.value
+      brightnessNumber.value=brightness.value
+      dynamicLevelNumber.value=dynamicLevel.value
+      feedbackNumber.value=feedback.value
+      console.log(pickPosition.value)
+      console.log(pickDirection.value)
+      console.log(decay.value)
+      console.log(brightness.value)
+      console.log(dynamicLevel.value)
+      console.log(feedback.value)
+      console.log(setting.selectedIndex)
+    }
+  </script>
+  <script src='guitar.js'></script>
+</div>

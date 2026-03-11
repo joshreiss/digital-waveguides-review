@@ -1,5 +1,5 @@
 var context = new AudioContext
-context.audioWorklet.addModule('Worklets.js').then(() => {
+context.audioWorklet.addModule('worklets.js').then(() => {
   var constantNode= new ConstantSourceNode(context,{offset:0})
   constantNode.start()
   aDelay = context.createDelay(1)

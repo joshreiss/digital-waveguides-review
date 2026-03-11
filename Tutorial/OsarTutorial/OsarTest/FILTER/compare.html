@@ -1,0 +1,43 @@
+  <p><input type='number' min=0 max=10000 value=1000 step=50 id='Frequency'> Frequency</p>
+  <p><input type='number' min=-100 max=100 value=1 step=0.5 id='Q'> Q</p>
+  <p><input type="checkbox" id="Worklet"> Worklet version</p>
+  <input type='button' value='play' onclick='context.resume()' id='Play'>
+  <script>    
+    var context = new AudioContext()
+    context.audioWorklet.addModule('worklets.js').then(() => {
+      let noise = new AudioWorkletNode(context,'noise-generator')
+      let lowpass2 = new AudioWorkletNode(context,'lowpass-webaudio-processor',
+        {parameterData:{frequency:Frequency.value,Q:Q.value}})
+        
+      let lowpass = new BiquadFilterNode(context,{frequency:1000})
+      console.log('q',lowpass.Q.value)
+      let noiseGain= new GainNode(context,{gain:0.3})
+
+      noise.connect(noiseGain)
+      noiseGain.connect(lowpass2)
+      lowpass2.connect(context.destination)
+      noiseGain.connect(lowpass)
+      lowpass.connect(context.destination)
+
+      Frequency.oninput = () => {
+        lowpass.frequency.value = Number(Frequency.value)    
+        lowpass2.parameters.get('frequency').value= Number(Frequency.value)  
+      }  
+      Q.oninput = () => {
+        lowpass.Q.value = Number(Q.value)    
+        lowpass2.parameters.get('Q').value= Number(Q.value)  
+      }  
+      Worklet.onclick = () => {
+        if (Workklet.checked) {
+          console.log('worklet',lowpass2.parameters.get('frequency').value,lowpass2.parameters.get('Q').value)
+          lowpass.disconnect()
+          lowpass2.connect(context.destination)
+        }
+        else {
+          console.log('webaudio',lowpass.frequency.value,lowpass.Q.value)
+          lowpass2.disconnect()
+          lowpass.connect(context.destination)
+        }
+      }
+    })
+  </script>

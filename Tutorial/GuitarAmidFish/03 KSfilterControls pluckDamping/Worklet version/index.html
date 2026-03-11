@@ -8,7 +8,7 @@
 <output id="pluckDampingOut">0.5</output> Pluck damping<br>
 <script>
   var context = new AudioContext
-  context.audioWorklet.addModule('KSWorklets.js').then(() => {
+  context.audioWorklet.addModule('worklets.js').then(() => {
     let Noise = new AudioWorkletNode(context,'noise-generator'),
     PluckDamper = new AudioWorkletNode(context,'smoothing-filter',
       {parameterData:{pitch:130,gain:0.96,smoothingFactor:pluckDamping.value}

@@ -1,0 +1,32 @@
+  <input type='button' value='play' onclick='context.resume()' id='Play'>
+  <script>
+    var context = new AudioContext()
+    let sequence = [ 0, 4, 7, 12, 16, 7, 12, 16]
+    let inc =0
+    function mtof(m) { return 440*Math.pow(2,(m-69)/12) }
+    for (let i=0;i<sequence.length;i++) {
+      console.log(mtof(sequence[i]))
+      let f = mtof(sequence[i])
+      let K = 1.011 / (f + 0.1786*f*f / context.sampleRate)
+      console.log(1/K)
+    }
+    let gain= new GainNode(context,{gain:0.1})
+    let tone= new OscillatorNode(context,{frequency:1000})
+    tone.start()
+    tone.connect(gain).connect(context.destination)
+
+      setInterval(tick, 250)
+      function tick() {
+        tone.frequency.value = (mtof(64 + sequence[inc]))
+        inc++
+        inc = inc % sequence.length
+      }
+
+      /* Same as 
+      # store melody in a table
+      _seq "0 4 7 12 16 7 12 16" gen_vals
+ 
+      # create beat and play melody with a sine wave
+      (4 metro 0 _seq tseq) mtof 0.1 sine
+      */
+  </script>

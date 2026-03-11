@@ -1,8 +1,14 @@
 
-<h2>Basic waveguide implementations</h2>
+<div style="font-family:Arial,Helvetica,sans-serif; line-height:1.2">
+  <h2>Basic waveguide implementations</h2>
+    The following block diagram directly matches the physical model. <br>
+    <img src="A.png" width=400><br>
+    However, we often use the simplified form shown below, <br>
+    <img src="B.png" width=400><br>
+    which is obtained by changing the point at which the delay loop is sampled, then combining delays inside the loop.<br>
 
-    To do!<br>
-    The top diagram above directly matches the physical model. 
-    We often use the simplified form in the second diagram, obtained by changing the point at which the delay loop is sampled, then combining delays inside the loop.<br>
     More generally, the input and output points as well as the order of elements inside the delay loop can often be modified with no audible difference, 
-    even if the model is not exactly equivalent. The third diagram is intended for low latency implementation.
+    even if the model is not exactly equivalent. This third diagram is intended for low latency implementation.
+    
+    <img src="C.png" width=300><br>
+</div>

@@ -1,0 +1,61 @@
+<script>
+  let context = new AudioContext()  
+  let freqs = new Float32Array(33),phases= new Float32Array(33), mags = []
+  for (let i=0;i<6;i++) mags[i]= new Float32Array(33) 
+  for (let i=0;i<=32;i++) freqs[i]=i*context.sampleRate/64
+  cutoff=context.sampleRate/4,
+  Omega_0= 2 * Math.PI * cutoff / context.sampleRate
+  FF1=[],FB1=[],FF2=[],FB2=[]
+
+  //////// my 1st order /////////
+  FF1[0]=Math.tan(Omega_0/2), FF1[1]=Math.tan(Omega_0/2),
+  FB1[0]=1+Math.tan(Omega_0/2), FB1[1]=-1+Math.tan(Omega_0/2)
+  context.createIIRFilter(FF1,FB1).getFrequencyResponse(freqs,mags[0],phases)
+
+  //////// CSound and Soundpipe "tone" /////////
+  let b= 2-Math.cos(Omega_0)
+  FF1[0]= 1 + Math.sqrt(b * b - 1) - b, FF1[1]=0,
+  FB1[0]=1, FB1[1]= Math.sqrt(b * b - 1) - b
+  context.createIIRFilter(FF1,FB1).getFrequencyResponse(freqs,mags[0],phases)
+
+  //////// CSound and Soundpipe "atone" /////////
+  b= 2-Math.cos(Omega_0)
+  FF1[0]= b - Math.sqrt(b * b - 1), FF1[1]= Math.sqrt(b * b - 1) - b,
+  FB1[0]=1, FB1[1]= Math.sqrt(b * b - 1) - b
+  context.createIIRFilter(FF1,FB1).getFrequencyResponse(freqs,mags[0],phases)
+
+  ////////// https://ccrma.stanford.edu/~jos/filters/Example_Second_Order_Butterworth_Lowpass.html
+  c= Math.cos(Omega_0/2)/Math.sin(Omega_0/2),
+  FF2[0]=1, FF2[1]=2, FF2[2]=1,
+  FB2[0]=c*c+c*Math.SQRT2+1, FB2[1]=2*(1-c*c), FB2[2]=c*c-c*Math.SQRT2+1
+  context.createIIRFilter(FF2,FB2).getFrequencyResponse(freqs,mags[1],phases)
+
+  /////// Web Audio Biquad ////////
+  let lowpass = new BiquadFilterNode(context,{frequency:cutoff,Q:0})
+  lowpass.getFrequencyResponse(freqs,mags[2],phases)  
+
+  ////////// Derived web audio, Q=1, QdB=0 /////////
+  let Alpha_Q= Math.sin(Omega_0)/2
+  FF2[0]=(1-Math.cos(Omega_0))/2, FF2[1]= 1-Math.cos(Omega_0), FF2[2]=(1-Math.cos(Omega_0))/2,
+  FB2[0]=1+Alpha_Q, FB2[1]=-2*Math.cos(Omega_0), FB2[2]=1-Alpha_Q
+  context.createIIRFilter(FF2,FB2).getFrequencyResponse(freqs,mags[3],phases)
+  
+  ////// JOS Highpass
+  c= Math.cos(Omega_0/2)/Math.sin(Omega_0/2),
+  FF2[0]=c*c, FF2[1]=-2*c*c, FF2[2]=c*c,
+  FB2[0]=c*c+c*Math.SQRT2+1, FB2[1]=2*(1-c*c), FB2[2]=c*c-c*Math.SQRT2+1
+  context.createIIRFilter(FF2,FB2).getFrequencyResponse(freqs,mags[4],phases)
+
+  //// 2nd order bandpass, Osar and I
+  let B=Omega_0
+        FF2[0] = Math.tan(B/2)
+        FF2[1] = 0
+        FF2[2] = -Math.tan(B/2) 
+        FB2[0] = 1+Math.tan(B/2)
+        FB2[1] = - 2*Math.cos(Omega_0)
+        FB2[2] = 1 - Math.tan(B/2)
+  context.createIIRFilter(FF2,FB2).getFrequencyResponse(freqs,mags[5],phases)
+  
+  //for (i=0;i<=32;i++) console.log(freqs[i],mags[i],mags1[i],mags2[i],mags3[i])
+  for (i=0;i<=32;i++) console.log(freqs[i],mags[0][i])
+</script>

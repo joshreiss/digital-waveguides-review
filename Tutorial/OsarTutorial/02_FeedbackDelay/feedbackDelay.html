@@ -1,4 +1,4 @@
-<div style="font-family: Arial, Helvetica, sans-serif">
+<div style="font-family:Arial,Helvetica,sans-serif; line-height:1.2">
   <h2>Feedback Delay</h2>
   Delay starts to produce interesting sounds when the output of a delay is routed back to the input. 
   Here, we implement a basic delay with feedback. The source is a short burst of a 2kHz tone.<br>
@@ -56,15 +56,13 @@
     }
   </script>
   <br>
-  This model can be represented by a difference equation, which gives the output y at sample n as a function of previous outputs and current and previous inputs x, <br>
+  This model can be represented by a difference equation, which gives the output <i>y</i> at sample <i>n</i> as a function of previous outputs and current and previous inputs <i>x</i>, <br>
   <math>y[n]=x[n-d]+gy[n−d]</math><br>
   <p><span class="math display">
       <em>y</em>[<em>n</em>] = 
       <em>x</em>[<em>n</em> − <em>d</em>] + 
       <em>g</em><em>y</em>[<em>n</em> − <em>d</em>]
-    </span></p><br>
-
-  where:
+    </span></p>
   <ul>
       <li><em>y</em> is the output signal,
       <li><em>x</em> is the input (exciter) signal

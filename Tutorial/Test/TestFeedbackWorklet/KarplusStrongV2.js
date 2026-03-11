@@ -8,7 +8,7 @@ function Stop() {
   Recording.stop()
   Recording.exportWAV(blob => audio.src = URL.createObjectURL(blob))
 }
-context.audioWorklet.addModule('KSWorklets.js').then(() => {
+context.audioWorklet.addModule('worklets.js').then(() => {
   let Noise = new AudioWorkletNode(context,'noise-generator'),
   NoiseGain = new GainNode(context,{gain:0}),
   feedbackDelay= new AudioWorkletNode(context,'feedbackDelay-processor',

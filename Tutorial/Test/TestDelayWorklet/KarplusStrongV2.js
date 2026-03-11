@@ -9,7 +9,7 @@ function Stop() {
   Recording.stop()
   Recording.exportWAV(blob => audio.src = URL.createObjectURL(blob))
 }
-context.audioWorklet.addModule('KSWorklets.js').then(() => {
+context.audioWorklet.addModule('worklets.js').then(() => {
   let Const = new AudioWorkletNode(context,'const-generator'),
   ConstGain = new GainNode(context,{gain:0}),
   feedbackGain = new GainNode(context,{gain:0.99}),

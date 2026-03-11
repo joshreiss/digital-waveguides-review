@@ -1,0 +1,25 @@
+<input type='button' value='play' onclick='context.resume()' id='Play'>
+<script>
+  var context = new AudioContext()
+  context.audioWorklet.addModule('worklets.js').then(() => {
+    let noise = new AudioWorkletNode(context,'noise-generator')
+      let envelope= new GainNode(context,{gain:0})
+      let delay= new DelayNode(context,{delayTime:0.005})
+      let feedbackGain = new GainNode(context, {gain:0.8}) //if I increase gain, I get feedback
+      let loopFilter = new BiquadFilterNode(context)
+
+      noise.connect(envelope)  
+
+envelope.connect(delay)
+delay.connect(loopFilter).connect(feedbackGain)
+feedbackGain.connect(delay)
+feedbackGain.connect(context.destination)
+
+      setInterval(tick, 500)
+      function tick() {
+        now=context.currentTime
+        envelope.gain.setValueAtTime(0.3, now)
+        envelope.gain.linearRampToValueAtTime(0, now + 0.01)
+    }
+  })    
+</script>

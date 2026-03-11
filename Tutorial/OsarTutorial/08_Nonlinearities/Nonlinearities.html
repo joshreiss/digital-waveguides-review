@@ -1,4 +1,4 @@
-<div style="font-family: Arial, Helvetica, sans-serif">
+<div style="font-family:Arial,Helvetica,sans-serif; line-height:1.2">
   <h2>Nonlinearities in the feedback filter</h2>
 
   The previous model, when filtered, produces only short notes, even with maximum feedback. But increasing the feedback above 1 would cause the system to go unstable.
@@ -10,4 +10,10 @@
   <img src="Nonlinearities diagram.png" width=500><br>
 
   A waveguide model with filters and a nonlinearity.<br>
+
+  <h3> Removing DC offset </h3>
+
+  Suppose a nonlinearity with too much slope at the origin is applied. That is, |NL'(0)|>1, assuming NL includes the feedback.
+  So a slight positive or negative average offset can get amplified inside the loop until the signal gets squashed. 
+  This can result in the output disappearing at high feedback values. To avoid this, a one-pole 30Hz high pass filter is used in the feedback loop.
 </div>
